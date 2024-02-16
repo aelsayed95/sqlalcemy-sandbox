@@ -18,3 +18,16 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./mysvc.py:/code/mysvc.py
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_PORT: 5432
+    dns:
+     - "8.8.8.8"
+     - "8.8.4.4"
+    command: >
+      sh -c "pip install -r requirements.txt && sleep 5 && python -u mysvc.py"
+    depends_on:
+      mydb:
+        condition: service_started

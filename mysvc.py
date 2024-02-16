@@ -7,7 +7,7 @@ import time
 import random
 import os
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 db_name = os.environ.get('POSTGRES_DB')
 db_user = os.environ.get('POSTGRES_USER')
@@ -18,12 +18,14 @@ db_host = 'mydb'
 # Connecto to the database
 db_string = 'postgresql://{}:{}@{}:{}/{}'.format(db_user, db_pass, db_host, db_port, db_name)
 db = create_engine(db_string)
+print(db)
 
 def add_new_row(n):
     # Insert a new number into the 'numbers' table.
-    stmt = f"INSERT INTO numbers (number,timestamp) VALUES "
-    f"({n}, {int(round(time.time() * 1000))});"
-    db.execute(stmt)
+    stmt = text("INSERT INTO numbers (number,timestamp) "+ "VALUES ("+ str(n) + "," + str(int(round(time.time() * 1000))) + ")")
+    with db.connect() as conn:
+        result = conn.execute(stmt)
+        conn.commit()
 
 def get_last_row():
     # Retrieve the last number inserted inside the 'numbers'
@@ -32,9 +34,10 @@ def get_last_row():
             "FROM numbers " + \
             "WHERE timestamp >= (SELECT max(timestamp) FROM numbers)" +\
             "LIMIT 1"
-
-    result_set = db.execute(query)  
-    for (r) in result_set:  
+    with db.connect() as conn:
+        result = conn.execute(text(query))
+        conn.commit()
+    for (r) in result:  
         return r[0]
 
 if __name__ == '__main__':
