@@ -29,10 +29,10 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_PORT: 5432
-    dns:
-     - "8.8.8.8"
-     - "8.8.4.4"
-    command: h -c "pip install -r requirements.txt && sleep 5 && python -u mysvc.py"
+    command:
+      - python
+      - -u
+      - mysvc.py
     depends_on:
       mydb:
         condition: service_healthy
