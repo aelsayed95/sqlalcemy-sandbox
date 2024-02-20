@@ -1,4 +1,31 @@
-CREATE TABLE IF NOT EXISTS numbers (
-    number BIGINT,
-    timestamp BIGINT
+CREATE TABLE IF NOT EXISTS item (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name VARCHAR NOT NULL,
+    description VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS store (
+    id INTEGER NOT NULL PRIMARY KEY,
+    item_id INTEGER NOT NULL REFERENCES item (id),
+    price INTEGER NOT NULL,
+    quantity INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS address (
+    id INTEGER NOT NULL PRIMARY KEY,
+    flat_number INTEGER NOT NULL,
+    post_code INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS customer (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name VARCHAR NOT NULL,
+    address_id INTEGER NOT NULL REFERENCES address (id)
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+    id INTEGER NOT NULL PRIMARY KEY,
+    customer_id INTEGER NOT NULL REFERENCES customer (id),
+    item_id INTEGER NOT NULL REFERENCES item (id),
+    quantity INTEGER NOT NULL
 );
