@@ -1,31 +1,31 @@
 services:
-  mydb:
+  marketdb:
     image: postgres
     restart: always
     environment:
-      POSTGRES_DB: mydb
+      POSTGRES_DB: marketdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_PORT: 5432
     ports:
     - 5432:5432
     volumes:
-      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./marketdb/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
       interval: 30s
       timeout: 60s
       retries: 5
-      start_period: 80s 
+      start_period: 80s
 
-  mysvc:
+  marketsvc:
     build:
-      context: .
+      context: ./marketsvc
       dockerfile: Dockerfile
     volumes:
-      - ./mysvc.py:/code/mysvc.py
+      - ./marketsvc:/code/
     environment:
-      POSTGRES_DB: mydb
+      POSTGRES_DB: marketdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_PORT: 5432
@@ -34,5 +34,5 @@ services:
       - -u
       - mysvc.py
     depends_on:
-      mydb:
+      marketdb:
         condition: service_healthy
