@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS orders (
     quantity INTEGER NOT NULL
 );
 
+-- Insert sample data
+
 INSERT INTO item VALUES (1, 'Milk', '1L bottle of milk');
 INSERT INTO item VALUES (2, 'Kit Kat', 'a chocolate');
 INSERT INTO item VALUES (3, 'Bread', 'a loaf of bread');

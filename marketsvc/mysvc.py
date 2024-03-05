@@ -13,7 +13,7 @@ def execute_query(query):
                         user = DB_USER, 
                         host = DB_HOST,
                         password = DB_PASSWORD,
-                        port = DB_PORT) as conn:
+                        port = DB_PORT):
         cur = conn.cursor()
         cur.execute(query)
         rows = cur.fetchall()
