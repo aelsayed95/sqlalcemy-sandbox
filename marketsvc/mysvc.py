@@ -7,17 +7,17 @@ DB_PORT = os.environ.get("POSTGRES_PORT")
 DB_NAME = os.environ.get("POSTGRES_DB")
 DB_HOST = "marketdb"
 
-conn = psycopg2.connect(database = DB_HOST, 
+
+def execute_query(query):
+    with psycopg2.connect(database = DB_HOST, 
                         user = DB_USER, 
                         host = DB_HOST,
                         password = DB_PASSWORD,
-                        port = DB_PORT)
-
-def execute_query(query):
-    cur = conn.cursor()
-    cur.execute(query)
-    rows = cur.fetchall()
-    conn.commit()
+                        port = DB_PORT) as conn:
+        cur = conn.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+        conn.commit()
 
     return rows
 
@@ -41,4 +41,3 @@ if __name__ == "__main__":
     # get_orders_of_customer(1)
     get_items_in_store()
 
-    conn.close()
