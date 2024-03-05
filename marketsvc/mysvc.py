@@ -13,7 +13,7 @@ def execute_query(query):
                         user = DB_USER, 
                         host = DB_HOST,
                         password = DB_PASSWORD,
-                        port = DB_PORT):
+                        port = DB_PORT) as conn:
         cur = conn.cursor()
         cur.execute(query)
         rows = cur.fetchall()
@@ -27,17 +27,16 @@ def get_customers():
         print(row)
 
 def get_orders_of_customer(customer_id):
-    rows = execute_query(f"SELECT * FROM orders WHERE customer_id={customer_id}")
-    for row in rows:
-        print(row)
-
-def get_items_in_store():
-    rows = execute_query("SELECT store.id, item.name, store.price FROM store JOIN item ON store.item_id = item.id")
+    rows = execute_query(f"""
+        SELECT * FROM orders 
+        JOIN order_items ON order_items.order_id = orders.id 
+        JOIN item ON item.id = order_items.item_id
+        WHERE orders.customer_id={customer_id}
+        """)
     for row in rows:
         print(row)
 
 if __name__ == "__main__":
     # get_customers()
-    # get_orders_of_customer(1)
-    get_items_in_store()
+    get_orders_of_customer(1)
 
