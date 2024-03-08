@@ -29,10 +29,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_PORT: 5432
+      FLASK_SERVER_PORT: 9090
+    ports:
+    - 9090:9090
     command:
       - python
-      - -u
-      - mysvc.py
+      - server.py
     depends_on:
       marketdb:
         condition: service_healthy

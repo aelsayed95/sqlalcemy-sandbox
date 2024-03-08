@@ -25,6 +25,7 @@ def get_customers():
     rows = execute_query("SELECT * FROM customer")
     for row in rows:
         print(row)
+    return rows
 
 def get_orders_of_customer(customer_id):
     rows = execute_query(f"""
@@ -35,6 +36,7 @@ def get_orders_of_customer(customer_id):
         """)
     for row in rows:
         print(row)
+    return rows
 
 if __name__ == "__main__":
     # get_customers()
