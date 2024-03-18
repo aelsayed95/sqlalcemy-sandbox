@@ -2,21 +2,17 @@ services:
   marketdb:
     image: postgres
     restart: always
-    environment:
-      POSTGRES_DB: marketdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_PORT: 5432
+    env_file: .env.yaml
     ports:
     - 5432:5432
     volumes:
       - ./marketdb/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
-      interval: 30s
-      timeout: 60s
-      retries: 5
-      start_period: 80s
+      interval: 10s
+      timeout: 30s
+      retries: 10
+      start_period: 60s
 
   marketsvc:
     build:
@@ -24,12 +20,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./marketsvc:/code/
-    environment:
-      POSTGRES_DB: marketdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_PORT: 5432
-      FLASK_SERVER_PORT: 9090
+    env_file: .env.yaml
     ports:
     - 9090:9090
     command:
