@@ -29,10 +29,20 @@ def get_customers():
 
 def get_orders_of_customer(customer_id):
     rows = execute_query(f"""
-        SELECT * FROM orders 
-        JOIN order_items ON order_items.order_id = orders.id 
-        JOIN item ON item.id = order_items.item_id
-        WHERE orders.customer_id={customer_id}
+        SELECT 
+            item.name, 
+            item.description, 
+            item.price, 
+            item.price*order_items.quantity
+        FROM orders 
+        JOIN order_items 
+        ON 
+            order_items.order_id = orders.id 
+        JOIN item 
+        ON 
+            item.id = order_items.item_id
+        WHERE
+            orders.customer_id={customer_id}
         """)
     for row in rows:
         print(row)
