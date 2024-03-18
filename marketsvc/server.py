@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return "<h1>Welcome to Orders Viewer!</h1>"
+    return "<h1>Welcome to MarketPlace!</h1>"
 
 @app.route('/api/customers')
 def customers():
