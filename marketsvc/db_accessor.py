@@ -71,6 +71,34 @@ def get_total_cost_of_an_order(order_id):
 
     return {"Order Total": rows[0][0]}
 
+
+def get_orders_between_dates(after, before):
+    rows = execute_query(f"""
+        SELECT
+            customer.name,
+            item.name, 
+            item.price, 
+            item.price*order_items.quantity
+        FROM orders 
+        JOIN customer
+        ON
+            customer.id = orders.customer_id
+        JOIN order_items 
+        ON 
+            order_items.order_id = orders.id 
+        JOIN item 
+        ON 
+            item.id = order_items.item_id
+        WHERE
+            orders.order_time >= '{after}'
+        AND
+            orders.order_time <= '{before}'
+        """)
+    for row in rows:
+        print(row)
+    return rows
+
+
 if __name__ == "__main__":
     # get_customers()
     get_orders_of_customer(1)
