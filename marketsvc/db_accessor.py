@@ -8,7 +8,7 @@ DB_NAME = os.environ.get("POSTGRES_DB")
 DB_HOST = "marketdb"
 
 
-def execute_query(query):
+def execute_query(query, insert=False):
     with psycopg2.connect(database = DB_HOST, 
                         user = DB_USER, 
                         host = DB_HOST,
@@ -16,10 +16,13 @@ def execute_query(query):
                         port = DB_PORT) as conn:
         cur = conn.cursor()
         cur.execute(query)
-        rows = cur.fetchall()
-        conn.commit()
 
-    return rows
+        if insert:
+            conn.commit()
+            return
+
+        rows = cur.fetchall()
+        return rows
 
 
 def get_customers():
@@ -97,6 +100,20 @@ def get_orders_between_dates(after, before):
     for row in rows:
         print(row)
     return rows
+
+
+def insert_order_items(order_id, item_id, quantity):
+    try:
+        execute_query(f"""
+            INSERT INTO order_items
+            VALUES
+                ({order_id}, {item_id}, {quantity})
+            """, insert=True)
+            
+        return "200 OK"
+
+    except:
+        return "500 Error"
 
 
 if __name__ == "__main__":

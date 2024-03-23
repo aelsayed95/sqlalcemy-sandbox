@@ -1,7 +1,7 @@
 import os
 from flask import Flask, jsonify, request
 
-from db_accessor import get_customers, get_orders_of_customer, get_total_cost_of_an_order, get_orders_between_dates
+from db_accessor import get_customers, get_orders_of_customer, get_total_cost_of_an_order, get_orders_between_dates, insert_order_items
 
 app = Flask(__name__)
 
@@ -27,8 +27,14 @@ def order_total():
 def orders_between_dates():
     after = request.args.get('after')
     before = request.args.get('before')
-    print("LOLOLOL", after, before)
     return jsonify(get_orders_between_dates(after, before))
+
+@app.route('/api/add_order_items', methods=["POST"])
+def add_order_items():
+    order_id = request.json.get("order_id")
+    item_id = request.json.get("item_id")
+    quantity = request.json.get("quantity")
+    return jsonify(insert_order_items(order_id, item_id, quantity))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=os.environ.get("FLASK_SERVER_PORT", 9090), debug=True)
