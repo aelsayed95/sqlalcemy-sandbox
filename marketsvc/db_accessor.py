@@ -34,7 +34,7 @@ def get_orders_of_customer(customer_id):
             item.name, 
             item.description, 
             item.price, 
-            item.price*order_items.quantity
+            item.price*order_items.quantity AS total
         FROM orders 
         JOIN order_items 
         ON 
@@ -43,7 +43,7 @@ def get_orders_of_customer(customer_id):
         ON 
             item.id = order_items.item_id
         WHERE
-            orders.customer_id=%(customer_id)s
+            orders.customer_id=:customer_id
         """,
         {"customer_id": customer_id},
     )
@@ -56,7 +56,7 @@ def get_total_cost_of_an_order(order_id):
     rows = execute_query(
         f"""
         SELECT 
-            SUM(item.price*order_items.quantity)
+            SUM(item.price*order_items.quantity) AS total
         FROM orders 
         JOIN order_items 
         ON 
@@ -65,7 +65,7 @@ def get_total_cost_of_an_order(order_id):
         ON 
             item.id = order_items.item_id
         WHERE
-            orders.id=%(order_id)s
+            orders.id=:order_id
         """,
         {"order_id": order_id},
     )
@@ -73,7 +73,7 @@ def get_total_cost_of_an_order(order_id):
     for row in rows:
         print(row)
 
-    return {"Order Total": rows[0][0]}
+    return rows[0]
 
 
 def get_orders_between_dates(after, before):
@@ -83,7 +83,7 @@ def get_orders_between_dates(after, before):
             customer.name,
             item.name, 
             item.price, 
-            item.price*order_items.quantity
+            item.price*order_items.quantity AS total
         FROM orders 
         JOIN customer
         ON
@@ -95,9 +95,9 @@ def get_orders_between_dates(after, before):
         ON 
             item.id = order_items.item_id
         WHERE
-            orders.order_time >= %(after)s
+            orders.order_time >= :after
         AND
-            orders.order_time <= %(before)s
+            orders.order_time <= :before
         """,
         {"after": after, "before": before},
     )
@@ -112,7 +112,7 @@ def insert_order_items(order_id, item_id, quantity):
             f"""
             INSERT INTO order_items
             VALUES
-                (%(order_id)s, %(item_id)s, %(quantity)s)
+                (:order_id, :item_id, :quantity)
             """,
             {"order_id": order_id, "item_id": item_id, "quantity": quantity},
             insert=True,

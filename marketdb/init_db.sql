@@ -47,6 +47,7 @@ INSERT INTO customer VALUES (3, 'Cam', 3);
 
 INSERT INTO orders VALUES (1, 1, '2024-03-18 10:30:00');
 INSERT INTO orders VALUES (2, 3, '2024-03-20 11:00:00');
+INSERT INTO orders VALUES (3, 2, '2024-03-25 15:00:00');
 
 INSERT INTO order_items VALUES (1, 2, 4);
 INSERT INTO order_items VALUES (1, 3, 2);
