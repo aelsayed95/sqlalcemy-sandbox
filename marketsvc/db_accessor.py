@@ -1,5 +1,6 @@
 import os
 import psycopg2
+from sqlalchemy import create_engine, text, URL
 
 DB_USER = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
@@ -7,19 +8,26 @@ DB_PORT = os.environ.get("POSTGRES_PORT")
 DB_NAME = os.environ.get("POSTGRES_DB")
 DB_HOST = "marketdb"
 
+url_object = URL.create(
+    "postgresql+psycopg2",
+    username=DB_USER,
+    password=DB_PASSWORD,
+    host=DB_HOST,
+    database=DB_NAME,
+    port=DB_PORT
+)
+
+engine = create_engine(url_object, echo=True)
 
 def execute_query(query, params=None, insert=False):
-    with psycopg2.connect(
-        database=DB_HOST, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT
-    ) as conn:
-        cur = conn.cursor()
-        cur.execute(query, params)
+    with engine.connect() as conn:
+        rows = conn.execute(text(query), params)
 
         if insert:
             conn.commit()
             return
 
-        rows = cur.fetchall()
+        # rows = cur.fetchall()
         return rows
 
 
