@@ -1,3 +1,4 @@
+import os
 from sqlalchemy import create_engine, URL
 
 DB_USER = os.environ.get("POSTGRES_USER")
