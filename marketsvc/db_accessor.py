@@ -17,7 +17,7 @@ def execute_query(query, params=None, insert=False):
             conn.commit()
             return
 
-        return [row._asdict() for row in result.all()]
+        return [row._asdict() for row in result]
 
 
 def get_customers():
@@ -122,8 +122,3 @@ def insert_order_items(order_id, item_id, quantity):
 
     except:
         return "500 Error"
-
-
-if __name__ == "__main__":
-    # get_customers()
-    get_orders_of_customer(1)
