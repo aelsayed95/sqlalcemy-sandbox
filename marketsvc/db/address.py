@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column
 
-from marketsvc.db.base import Base, engine
+from db.base import Base, engine
 
 
 class Address(Base):
