@@ -12,4 +12,4 @@ class Item(Base):
     description: Mapped[str | None]
 
     def __repr__(self) -> str:
-        return f"Item(id={self.id!r}, name={self.name!r}, price={self.price!r}), description={self.description!r})"
+        return f"Item(id={self.id!r}, name={self.name!r}, price={self.price!r}, description={self.description!r})"

@@ -11,4 +11,4 @@ class Address(Base):
     post_code: Mapped[str]
 
     def __repr__(self) -> str:
-        return f"Address(id={self.id!r}, flat_number={self.flat_number!r}, post_code={self.post_code!r}))"
+        return f"Address(id={self.id!r}, flat_number={self.flat_number!r}, post_code={self.post_code!r})"
