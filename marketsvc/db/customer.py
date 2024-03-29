@@ -18,14 +18,19 @@ class Customer(Base):
         return f"Item(id={self.id!r}, name={self.name!r}, address_id={self.address_id!r}, address={self.address})"
 
     @classmethod
-    def get_customers(cls) -> list[dict[str, Any]]:
+    def get_customers(cls) -> list["Customer"]:
         with Session(engine) as session:
             stmt = select(Customer)
             result = session.execute(stmt)
             customers = result.scalars().all()
 
-            return [{"id": customer.id,
-                    "name": customer.name,
-                    "flat_number": customer.address.flat_number,
-                    "post_code": customer.address.post_code}
-                    for customer in customers]
+            return customers
+
+    @classmethod
+    def as_dict(cls, customers):
+    
+        return [{c.name: getattr(customer, c.name)
+                 for c in customer.__table__.columns} | 
+                 {c.name: getattr(customer.address, c.name) 
+                  for c in customer.address.__table__.columns} 
+                 for customer in customers]
