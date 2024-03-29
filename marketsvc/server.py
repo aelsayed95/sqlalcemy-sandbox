@@ -2,7 +2,7 @@ import os
 from flask import Flask, jsonify, request
 
 from db_accessor import (
-    get_customers,
+    get_customers, get_orders_of_customer
 )
 
 app = Flask(__name__)
@@ -18,10 +18,10 @@ def customers():
     return jsonify(get_customers())
 
 
-# @app.route("/api/orders")
-# def orders():
-#     cust_id = request.args.get("cust_id")
-#     return jsonify(get_orders_of_customer(cust_id))
+@app.route("/api/orders")
+def orders():
+    cust_id = request.args.get("cust_id")
+    return jsonify(get_orders_of_customer(cust_id))
 
 
 # @app.route("/api/order_total")

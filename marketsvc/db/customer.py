@@ -24,8 +24,8 @@ class Customer(Base):
             result = session.execute(stmt)
             customers = result.scalars().all()
 
-        return [{"id": customer.id,
-                "name": customer.name,
-                "flat_number": customer.address.flat_number,
-                "post_code": customer.address.post_code}
-                for customer in customers]
+            return [{"id": customer.id,
+                    "name": customer.name,
+                    "flat_number": customer.address.flat_number,
+                    "post_code": customer.address.post_code}
+                    for customer in customers]
