@@ -1,13 +1,5 @@
-import os
-import psycopg2
-from sqlalchemy import text, URL
+from sqlalchemy import text
 from db.base import engine
-
-DB_USER = os.environ.get("POSTGRES_USER")
-DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
-DB_PORT = os.environ.get("POSTGRES_PORT")
-DB_NAME = os.environ.get("POSTGRES_DB")
-DB_HOST = "marketdb"
 
 def execute_query(query, params=None, insert=False):
     with engine.connect() as conn:
