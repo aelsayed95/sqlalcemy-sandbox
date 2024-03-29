@@ -8,3 +8,7 @@ def get_customers():
 def get_orders_of_customer(customer_id):
     orders = Orders.get_orders_by_customer_id(customer_id)
     return orders
+
+def get_total_cost_of_an_order(order_id):
+    total_cost = Orders.get_total_cost_of_an_order(order_id)
+    return total_cost
