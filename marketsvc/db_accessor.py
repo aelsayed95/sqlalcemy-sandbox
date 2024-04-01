@@ -1,27 +1,28 @@
 from datetime import datetime
+import logging
 
-from db.base import engine
+from db.base import async_session_maker
 from db.customer import Customer
 from db.item import Item
 from db.order_items import OrderItems
 from db.orders import Orders
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 
-def get_customers():
-    with Session(engine) as session:
+async def get_customers():
+    async_session = async_session_maker()
+    async with async_session() as session:
         stmt = select(Customer)
-        result = session.execute(stmt)
-        customers = result.scalars().all()
+        result = await session.stream(stmt)
+        async for customer in result.scalars():
+            yield customer.as_dict()
 
-    return [customer.as_dict() for customer in customers]
 
-
-def get_orders_of_customer(customer_id):
-    with Session(engine) as session:
-        result = session.execute(
+async def get_orders_of_customer(customer_id):
+    async_session = async_session_maker()
+    async with async_session() as session:
+        result = await session.execute(
             select(Orders).where(Orders.customer_id == customer_id)
         )
         orders = result.scalars().unique().all()
@@ -29,9 +30,10 @@ def get_orders_of_customer(customer_id):
     return [order.as_dict() for order in orders]
 
 
-def get_total_cost_of_an_order(order_id):
-    with Session(engine) as session:
-        result = session.execute(
+async def get_total_cost_of_an_order(order_id):
+    async_session = async_session_maker()
+    async with async_session() as session:
+        result = await session.execute(
             select(func.sum(Item.price * OrderItems.quantity).label("total_cost"))
             .join(Orders.order_items)
             .join(OrderItems.item)
@@ -41,34 +43,37 @@ def get_total_cost_of_an_order(order_id):
         return {"total_cost": total_cost}
 
 
-def get_orders_between_dates(after, before):
-    with Session(engine) as session:
-        result = session.execute(
+async def get_orders_between_dates(after, before):
+    async_session = async_session_maker()
+    async with async_session() as session:
+        result = await session.stream(
             select(Orders).where(Orders.order_time.between(after, before))
         )
-        orders = result.scalars().unique().all()
+        async for order in result.scalars().unique():
+            yield order.as_dict()
 
-    return [order.as_dict() for order in orders]
 
-
-def insert_order_items(order_id, item_id, quantity):
+async def insert_order_items(order_id, item_id, quantity):
     try:
-        with Session(engine) as session:
+        async_session = async_session_maker()
+        async with async_session() as session:
             new_order_item = OrderItems(
                 order_id=order_id, item_id=item_id, quantity=quantity
             )
             session.add(new_order_item)
-            session.commit()
+            await session.commit()
 
         return True
     except Exception:
+        logging.exception("Failed to add items to order")
         return False
 
 
-def add_new_order_for_customer(customer_id, items):
+async def add_new_order_for_customer(customer_id, items):
     try:
-        with Session(engine) as session:
-            result = session.execute(select(Customer).where(customer_id == customer_id))
+        async_session = async_session_maker()
+        async with async_session() as session:
+            result = await session.execute(select(Customer).where(customer_id == customer_id))
             customer = result.scalar()
 
             new_order = Orders(
@@ -78,7 +83,7 @@ def add_new_order_for_customer(customer_id, items):
             )
 
             session.add(new_order)
-            session.flush()
+            await session.flush()
 
             new_order_items = [
                 OrderItems(
@@ -90,8 +95,9 @@ def add_new_order_for_customer(customer_id, items):
             ]
 
             session.add_all(new_order_items)
-            session.commit()
+            await session.commit()
         return True
 
     except Exception:
+        logging.exception("Failed to add new order")
         return False

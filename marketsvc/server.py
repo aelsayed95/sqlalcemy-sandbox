@@ -1,4 +1,7 @@
 import os
+import asyncio
+
+from flask import Flask, jsonify, request, Response
 
 from db_accessor import (
     get_customers,
@@ -8,61 +11,71 @@ from db_accessor import (
     insert_order_items,
     add_new_order_for_customer,
 )
-from flask import Flask, jsonify, request, Response
+from formatters import str_to_date
 
 app = Flask(__name__)
 
 
 @app.route("/")
-def hello():
+async def hello():
     return "<h1>Welcome to MarketPlace!</h1>"
 
 
 @app.route("/api/customers")
-def customers():
-    return jsonify(get_customers())
+async def customers():
+    customers = get_customers()
+    return jsonify([c async for c in customers])
 
 
 @app.route("/api/orders")
-def orders():
-    cust_id = request.args.get("cust_id")
-    return jsonify(get_orders_of_customer(cust_id))
+async def orders():
+    cust_id = int(request.args.get("cust_id"))
+    orders = await get_orders_of_customer(cust_id)
+    return jsonify(orders)
 
 
 @app.route("/api/order_total")
-def order_total():
-    order_id = request.args.get("order_id")
-    return jsonify(get_total_cost_of_an_order(order_id))
+async def order_total():
+    order_id = int(request.args.get("order_id"))
+    total = await get_total_cost_of_an_order(order_id)
+    return jsonify(total)
+
+
+@app.route("/api/orders_total")
+async def orders_total():
+    orders = request.json.get("orders", [])
+    async with asyncio.TaskGroup() as tg:
+        order_tasks = [tg.create_task(get_total_cost_of_an_order(order)) for order in orders]
+    return jsonify([task.result() for task in order_tasks])
 
 
 @app.route("/api/orders_between_dates")
-def orders_between_dates():
-    after = request.args.get("after")
-    before = request.args.get("before")
-    return jsonify(get_orders_between_dates(after, before))
+async def orders_between_dates():
+    after = str_to_date(request.args.get("after"))
+    before = str_to_date(request.args.get("before"))
+
+    orders = get_orders_between_dates(after, before)
+
+    return jsonify([order async for order in orders])
 
 
 @app.route("/api/add_order_items", methods=["POST"])
-def add_order_items():
+async def add_order_items():
     order_id = request.json.get("order_id")
     item_id = request.json.get("item_id")
     quantity = request.json.get("quantity")
 
-    if insert_order_items(order_id, item_id, quantity):
-        return Response(status=200)
-    else:
-        return Response(status=500)
+    success = await insert_order_items(order_id, item_id, quantity)
+    return Response(status=200) if success else Response(status=500)
 
 
 @app.route("/api/add_new_order", methods=["POST"])
-def add_new_order():
+async def add_new_order():
     customer_id = request.json.get("customer_id")
     items = request.json.get("items")
 
-    if add_new_order_for_customer(customer_id, items):
-        return Response(status=200)
-    else:
-        return Response(status=500)
+    success = await add_new_order_for_customer(customer_id, items)
+    return Response(status=200) if success else Response(status=500)
 
 
 if __name__ == "__main__":
