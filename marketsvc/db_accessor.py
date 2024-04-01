@@ -1,26 +1,29 @@
 from sqlalchemy import text
-from db.base import engine
+from db.base import create_engine
 
-def execute_query(query, params=None, insert=False):
-    with engine.connect() as conn:
-        result = conn.execute(text(query), params)
+import logging
+
+
+async def execute_query(query, params=None, insert=False):
+    async with create_engine().begin() as conn:
+        result = await conn.execute(text(query), params)
 
         if insert:
-            conn.commit()
-            return
+            await conn.commit()
+            return []
 
-        return [row._asdict() for row in result]
+    return [row._asdict() for row in result.fetchall()]
 
 
-def get_customers():
-    rows = execute_query("SELECT * FROM customer")
+async def get_customers():
+    rows = await execute_query("SELECT * FROM customer")
     for row in rows:
         print(row)
     return rows
 
 
-def get_orders_of_customer(customer_id):
-    rows = execute_query(
+async def get_orders_of_customer(customer_id):
+    rows = await execute_query(
         f"""
         SELECT 
             item.name, 
@@ -44,8 +47,8 @@ def get_orders_of_customer(customer_id):
     return rows
 
 
-def get_total_cost_of_an_order(order_id):
-    rows = execute_query(
+async def get_total_cost_of_an_order(order_id):
+    rows = await execute_query(
         f"""
         SELECT 
             SUM(item.price*order_items.quantity) AS total
@@ -68,8 +71,8 @@ def get_total_cost_of_an_order(order_id):
     return rows[0]
 
 
-def get_orders_between_dates(after, before):
-    rows = execute_query(
+async def get_orders_between_dates(after, before):
+    rows = await execute_query(
         f"""
         SELECT
             customer.name,
@@ -98,9 +101,9 @@ def get_orders_between_dates(after, before):
     return rows
 
 
-def insert_order_items(order_id, item_id, quantity):
+async def insert_order_items(order_id, item_id, quantity):
     try:
-        execute_query(
+        await execute_query(
             f"""
             INSERT INTO order_items
             VALUES
@@ -112,5 +115,6 @@ def insert_order_items(order_id, item_id, quantity):
 
         return "200 OK"
 
-    except:
+    except Exception:
+        logging.exception("Failed to add order items")
         return "500 Error"

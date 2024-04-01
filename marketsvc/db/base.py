@@ -1,5 +1,6 @@
 import os
 from sqlalchemy import create_engine, URL
+from sqlalchemy.ext.asyncio import create_async_engine
 
 DB_USER = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
@@ -8,7 +9,7 @@ DB_NAME = os.environ.get("POSTGRES_DB")
 DB_HOST = "marketdb"
 
 url_object = URL.create(
-    "postgresql+psycopg2",
+    "postgresql+asyncpg",
     username=DB_USER,
     password=DB_PASSWORD,
     host=DB_HOST,
@@ -16,4 +17,5 @@ url_object = URL.create(
     port=DB_PORT
 )
 
-engine = create_engine(url_object, echo=True)
+def create_engine():
+    return create_async_engine(url_object, echo=True)
