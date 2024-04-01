@@ -1,4 +1,5 @@
 import os
+import asyncio
 from flask import Flask, jsonify, request
 
 from db_accessor import (
@@ -36,6 +37,27 @@ async def order_total():
     order_id = int(request.args.get("order_id"))
     total = await get_total_cost_of_an_order(order_id)
     return jsonify(total)
+
+
+@app.route("/api/orders_total")
+async def orders_total():
+    orders = request.json.get("orders", [])
+    async with asyncio.TaskGroup() as tg:
+        order_tasks = [tg.create_task(get_total_cost_of_an_order(order)) for order in orders]
+    return jsonify([task.result() for task in order_tasks])
+
+
+# TODO: comment out the implementation of orders_total() above and uncomment this implementation
+# what do you expect to happen? 
+# @app.route("/api/orders_total")
+# async def orders_total():
+#     orders = request.json.get("orders", [])
+#     async with asyncio.TaskGroup() as tg:
+#         results = []
+#         for order in orders:
+#             result = await tg.create_task(get_total_cost_of_an_order(order))
+#             results.append(result)
+#     return jsonify(results)
 
 
 @app.route("/api/orders_between_dates")
