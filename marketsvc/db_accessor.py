@@ -12,3 +12,7 @@ def get_orders_of_customer(customer_id):
 def get_total_cost_of_an_order(order_id):
     total_cost = Orders.get_total_cost_of_an_order(order_id)
     return total_cost
+
+def get_orders_between_dates(after, before):
+    orders = Orders.get_orders_between_dates(after, before)
+    return orders

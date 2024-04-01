@@ -46,3 +46,17 @@ class Orders(Base):
                                      .where(Orders.id == order_id))
             total_cost = result.scalars().all()
             return total_cost
+
+    @classmethod
+    def get_orders_between_dates(cls, after, before):
+        with Session(engine) as session:
+            result = session.execute(select(Orders)
+                                     .where(Orders.order_time.between(after, before)))
+            orders = result.scalars().unique().all()
+            
+            return [{"customer": order.customer.name,
+                    "item": order_item.item.name,
+                    "price": order_item.item.price,
+                    "total": order_item.item.price * order_item.quantity,}
+                    for order in orders 
+                    for order_item in order.order_items]
