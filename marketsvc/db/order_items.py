@@ -17,4 +17,3 @@ class OrderItems(Base):
 
     def __repr__(self) -> str:
         return f"OrderItems(order_id={self.order_id!r}, item_id={self.item_id!r}, quantity={self.quantity!r}, item={self.item})"
-
