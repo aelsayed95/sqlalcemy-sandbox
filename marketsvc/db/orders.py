@@ -15,8 +15,8 @@ class Orders(Base):
     customer_id: Mapped[int] = mapped_column(ForeignKey("customer.id"))
     order_time: Mapped[datetime]
 
-    customer: Mapped["Customer"] = relationship(lazy="joined")
-    order_items: Mapped[list["OrderItems"]] = relationship(lazy="joined")
+    customer: Mapped["Customer"] = relationship(lazy="joined") # many to one
+    order_items: Mapped[list["OrderItems"]] = relationship(lazy="joined") # one to many
 
     def __repr__(self) -> str:
         return f"Orders(id={self.id!r}, customer_id={self.customer_id!r}, order_time={self.order_time!r}, customer={self.customer})"

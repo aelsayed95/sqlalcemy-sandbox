@@ -13,9 +13,8 @@ class OrderItems(Base):
     item_id: Mapped[int] = mapped_column(ForeignKey("item.id"), primary_key=True)
     quantity: Mapped[int]
 
-    orders: Mapped[list["Orders"]] = relationship(lazy="joined")
-    item: Mapped["Item"] = relationship(lazy="joined")
+    item: Mapped["Item"] = relationship(lazy="joined") # many to one
 
     def __repr__(self) -> str:
-        return f"OrderItems(order_id={self.order_id!r}, item_id={self.item_id!r}, quantity={self.quantity!r}, orders={self.orders}, item={self.item})"
+        return f"OrderItems(order_id={self.order_id!r}, item_id={self.item_id!r}, quantity={self.quantity!r}, item={self.item})"
 
