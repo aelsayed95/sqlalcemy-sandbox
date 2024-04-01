@@ -63,25 +63,23 @@ def add_new_order_for_customer(customer_id, items):
         result = session.execute(select(Customer).where(customer_id == customer_id))
         customer = result.scalar()
 
-        result = session.execute(select(func.max(Orders.id)))
-        order_id = result.scalar() + 1
-
         new_order = Orders(
-            id=order_id,
             customer_id=customer_id,
             order_time=datetime.now(),
             customer=customer,
         )
 
+        session.add(new_order)
+        session.flush()
+
         new_order_items = [
             OrderItems(
-                order_id=order_id,
+                order_id=new_order.id,
                 item_id=item["id"],
                 quantity=item["quantity"],
             )
             for item in items
         ]
 
-        session.add(new_order)
         session.add_all(new_order_items)
         session.commit()

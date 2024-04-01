@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS customer (
 );
 
 CREATE TABLE IF NOT EXISTS orders (
-    id INTEGER NOT NULL PRIMARY KEY,
+    id INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     customer_id INTEGER NOT NULL REFERENCES customer (id),
     order_time TIMESTAMP NOT NULL
 );
@@ -45,9 +45,9 @@ INSERT INTO customer VALUES (1, 'Alex', 1);
 INSERT INTO customer VALUES (2, 'Blake', 2);
 INSERT INTO customer VALUES (3, 'Cam', 3);
 
-INSERT INTO orders VALUES (1, 1, '2024-03-18 10:30:00');
-INSERT INTO orders VALUES (2, 3, '2024-03-20 11:00:00');
-INSERT INTO orders VALUES (3, 2, '2024-03-25 15:00:00');
+INSERT INTO orders (customer_id, order_time) VALUES (1, '2024-03-18 10:30:00');
+INSERT INTO orders (customer_id, order_time) VALUES (3, '2024-03-20 11:00:00');
+INSERT INTO orders (customer_id, order_time) VALUES (2, '2024-03-25 15:00:00');
 
 INSERT INTO order_items VALUES (1, 2, 4);
 INSERT INTO order_items VALUES (1, 3, 2);
