@@ -1,10 +1,11 @@
 from __future__ import annotations
-from sqlalchemy.orm import Mapped, mapped_column, Session, relationship
-from sqlalchemy import ForeignKey
-from db.base import Base, engine
+
+
+from db.base import Base
 from db.item import Item
-from typing import Any
-from datetime import datetime
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 
 class OrderItems(Base):
     __tablename__ = "order_items"
@@ -13,7 +14,7 @@ class OrderItems(Base):
     item_id: Mapped[int] = mapped_column(ForeignKey("item.id"), primary_key=True)
     quantity: Mapped[int]
 
-    item: Mapped["Item"] = relationship(lazy="joined") # many to one
+    item: Mapped["Item"] = relationship(lazy="joined")  # many to one
 
     def __repr__(self) -> str:
         return f"OrderItems(order_id={self.order_id!r}, item_id={self.item_id!r}, quantity={self.quantity!r}, item={self.item})"
