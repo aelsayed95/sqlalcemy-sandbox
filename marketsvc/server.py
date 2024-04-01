@@ -20,8 +20,8 @@ async def hello():
 
 @app.route("/api/customers")
 async def customers():
-    result = await get_customers()
-    return jsonify(result)
+    customers = get_customers()
+    return jsonify([c async for c in customers])
 
 
 @app.route("/api/orders")
@@ -42,8 +42,10 @@ async def order_total():
 async def orders_between_dates():
     after = str_to_date(request.args.get("after"))
     before = str_to_date(request.args.get("before"))
-    orders = await get_orders_between_dates(after, before)
-    return jsonify(orders)
+
+    orders = get_orders_between_dates(after, before)
+
+    return jsonify([order async for order in orders])
 
 
 @app.route("/api/add_order_items", methods=["POST"])

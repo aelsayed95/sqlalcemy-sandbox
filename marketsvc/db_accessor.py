@@ -4,21 +4,32 @@ from db.base import create_engine
 import logging
 
 
+async def execute_insert_query(query, params):
+    async with create_engine().begin() as conn:
+        result = await conn.execute(text(query), params)
+        await conn.commit()
+    return []
+
+
 async def execute_query(query, params=None, insert=False):
     async with create_engine().begin() as conn:
         result = await conn.execute(text(query), params)
-
-        if insert:
-            await conn.commit()
-            return []
-
-    return [row._asdict() for row in result.fetchall()]
+        return [row._asdict() for row in result]
 
 
-async def get_customers():
-    rows = await execute_query("SELECT * FROM customer")
-    for row in rows:
-        print(row)
+async def stream_query(query, params=None, insert=False):
+    async with create_engine().begin() as conn:
+        # https://docs.sqlalchemy.org/en/20/_modules/examples/asyncio/basic.html
+        # for a streaming result that buffers only segments of the
+        # result at time, the AsyncConnection.stream() method is used.
+        # this returns a sqlalchemy.ext.asyncio.AsyncResult object.
+        result = await conn.stream(text(query), params)
+        async for row in result:
+            yield row._asdict()
+
+
+def get_customers():
+    rows = stream_query("SELECT * FROM customer")
     return rows
 
 
@@ -42,8 +53,6 @@ async def get_orders_of_customer(customer_id):
         """,
         {"customer_id": customer_id},
     )
-    for row in rows:
-        print(row)
     return rows
 
 
@@ -64,15 +73,11 @@ async def get_total_cost_of_an_order(order_id):
         """,
         {"order_id": order_id},
     )
-
-    for row in rows:
-        print(row)
-
     return rows[0]
 
 
-async def get_orders_between_dates(after, before):
-    rows = await execute_query(
+def get_orders_between_dates(after, before):
+    rows = stream_query(
         f"""
         SELECT
             customer.name,
@@ -96,21 +101,18 @@ async def get_orders_between_dates(after, before):
         """,
         {"after": after, "before": before},
     )
-    for row in rows:
-        print(row)
     return rows
 
 
 async def insert_order_items(order_id, item_id, quantity):
     try:
-        await execute_query(
+        await execute_insert_query(
             f"""
             INSERT INTO order_items
             VALUES
                 (:order_id, :item_id, :quantity)
             """,
             {"order_id": order_id, "item_id": item_id, "quantity": quantity},
-            insert=True,
         )
 
         return "200 OK"
