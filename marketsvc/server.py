@@ -1,13 +1,13 @@
 import os
-from flask import Flask, jsonify, request
 
 from db_accessor import (
     get_customers,
+    get_orders_between_dates,
     get_orders_of_customer,
     get_total_cost_of_an_order,
-    get_orders_between_dates,
     insert_order_items,
 )
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
