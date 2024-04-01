@@ -8,7 +8,7 @@ from db_accessor import (
     insert_order_items,
     add_new_order_for_customer,
 )
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 
 app = Flask(__name__)
 
@@ -47,14 +47,22 @@ def add_order_items():
     order_id = request.json.get("order_id")
     item_id = request.json.get("item_id")
     quantity = request.json.get("quantity")
-    return jsonify(insert_order_items(order_id, item_id, quantity))
+
+    if insert_order_items(order_id, item_id, quantity):
+        return Response(status=200)
+    else:
+        return Response(status=500)
 
 
 @app.route("/api/add_new_order", methods=["POST"])
 def add_new_order():
     customer_id = request.json.get("customer_id")
     items = request.json.get("items")
-    return jsonify(add_new_order_for_customer(customer_id, items))
+
+    if add_new_order_for_customer(customer_id, items):
+        return Response(status=200)
+    else:
+        return Response(status=500)
 
 
 if __name__ == "__main__":

@@ -9,11 +9,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 class Customer(Base):
     __tablename__ = "customer"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str]
     address_id: Mapped[int] = mapped_column(ForeignKey("address.id"))
 
-    address: Mapped["Address"] = relationship(lazy="joined")  # one to one
+    address: Mapped["Address"] = relationship(
+        back_populates="customer", lazy="joined"
+    )  # one to one
 
     def __repr__(self) -> str:
         return f"Item(id={self.id!r}, name={self.name!r}, address_id={self.address_id!r}, address={self.address})"

@@ -52,34 +52,46 @@ def get_orders_between_dates(after, before):
 
 
 def insert_order_items(order_id, item_id, quantity):
-    new_order_item = OrderItems(order_id=order_id, item_id=item_id, quantity=quantity)
-    with Session(engine) as session:
-        session.add(new_order_item)
-        session.commit()
+    try:
+        with Session(engine) as session:
+            new_order_item = OrderItems(
+                order_id=order_id, item_id=item_id, quantity=quantity
+            )
+            session.add(new_order_item)
+            session.commit()
+
+        return True
+    except Exception:
+        return False
 
 
 def add_new_order_for_customer(customer_id, items):
-    with Session(engine) as session:
-        result = session.execute(select(Customer).where(customer_id == customer_id))
-        customer = result.scalar()
+    try:
+        with Session(engine) as session:
+            result = session.execute(select(Customer).where(customer_id == customer_id))
+            customer = result.scalar()
 
-        new_order = Orders(
-            customer_id=customer_id,
-            order_time=datetime.now(),
-            customer=customer,
-        )
-
-        session.add(new_order)
-        session.flush()
-
-        new_order_items = [
-            OrderItems(
-                order_id=new_order.id,
-                item_id=item["id"],
-                quantity=item["quantity"],
+            new_order = Orders(
+                customer_id=customer_id,
+                order_time=datetime.now(),
+                customer=customer,
             )
-            for item in items
-        ]
 
-        session.add_all(new_order_items)
-        session.commit()
+            session.add(new_order)
+            session.flush()
+
+            new_order_items = [
+                OrderItems(
+                    order_id=new_order.id,
+                    item_id=item["id"],
+                    quantity=item["quantity"],
+                )
+                for item in items
+            ]
+
+            session.add_all(new_order_items)
+            session.commit()
+        return True
+
+    except Exception:
+        return False

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 class Item(Base):
     __tablename__ = "item"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str]
     price: Mapped[float]
     description: Mapped[str | None]
