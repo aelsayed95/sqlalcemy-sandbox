@@ -14,8 +14,9 @@ url_object = URL.create(
     password=DB_PASSWORD,
     host=DB_HOST,
     database=DB_NAME,
-    port=DB_PORT
+    port=DB_PORT,
 )
+
 
 def create_engine():
     return create_async_engine(url_object, echo=True)

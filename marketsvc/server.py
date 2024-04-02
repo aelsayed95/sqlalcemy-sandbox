@@ -43,21 +43,10 @@ async def order_total():
 async def orders_total():
     orders = request.json.get("orders", [])
     async with asyncio.TaskGroup() as tg:
-        order_tasks = [tg.create_task(get_total_cost_of_an_order(order)) for order in orders]
+        order_tasks = [
+            tg.create_task(get_total_cost_of_an_order(order)) for order in orders
+        ]
     return jsonify([task.result() for task in order_tasks])
-
-
-# TODO: comment out the implementation of orders_total() above and uncomment this implementation
-# what do you expect to happen? 
-# @app.route("/api/orders_total")
-# async def orders_total():
-#     orders = request.json.get("orders", [])
-#     async with asyncio.TaskGroup() as tg:
-#         results = []
-#         for order in orders:
-#             result = await tg.create_task(get_total_cost_of_an_order(order))
-#             results.append(result)
-#     return jsonify(results)
 
 
 @app.route("/api/orders_between_dates")
