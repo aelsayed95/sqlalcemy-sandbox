@@ -19,12 +19,12 @@ def execute_query(query, params=None):
         return rows
 
 
-def execute_insert_query(query):
+def execute_insert_query(query, params):
     with psycopg2.connect(
         database=DB_HOST, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT
     ) as conn:
         cur = conn.cursor()
-        cur.execute(query)
+        cur.execute(query, params)
         conn.commit()
 
 
@@ -120,8 +120,7 @@ def insert_order_items(order_id, item_id, quantity):
             """,
             {"order_id": order_id, "item_id": item_id, "quantity": quantity},
         )
-
-        return "200 OK"
+        return True
 
     except Exception:
         return False
