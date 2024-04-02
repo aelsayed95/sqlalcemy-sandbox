@@ -4,10 +4,22 @@ from dataclasses import dataclass, field
 import random
 import time
 
-ITEMS = ["milk", "eggs", "crepes", "rice", "bread", "tomatoes", "cucumbers", "fish", "chicken", "shrimp"]
+ITEMS = [
+    "milk",
+    "eggs",
+    "crepes",
+    "rice",
+    "bread",
+    "tomatoes",
+    "cucumbers",
+    "fish",
+    "chicken",
+    "shrimp",
+]
 MAX_ITEMS = 5
 MAX_SLEEP = 5
 MAX_TASKS = 3
+
 
 @dataclass
 class Order:
@@ -25,7 +37,7 @@ async def place_order(cid: int, q: asyncio.Queue):
     num_items = random.randint(1, MAX_ITEMS)
     print(f"Customer={cid} is online")
     for i in range(num_items):
-        await asyncio.sleep(random.randint(1, MAX_SLEEP))     # browsing time
+        await asyncio.sleep(random.randint(1, MAX_SLEEP))  # browsing time
 
         item_id = random.randint(0, len(ITEMS) - 1)
         order = Order(ITEMS[item_id])
@@ -45,10 +57,13 @@ async def process_orders(shop_id: int, q: asyncio.Queue):
             await asyncio.sleep(random.randint(1, MAX_SLEEP))
 
             now = time.perf_counter()
-            print(f"Shop id={shop_id} processed order={order} in {now - order.created:0.3f}")
+            print(
+                f"Shop id={shop_id} processed order={order} in {now - order.created:0.3f}"
+            )
             q.task_done()
     except asyncio.exceptions.CancelledError:
         print(f"Shop id={shop_id} is now closed.")
+
 
 async def main():
     # asyncio.Queue()
@@ -64,5 +79,6 @@ async def main():
     for shop in shops:
         shop.cancel()
     print("Done.")
+
 
 asyncio.run(main())

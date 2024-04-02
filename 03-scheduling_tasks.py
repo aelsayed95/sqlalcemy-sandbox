@@ -3,10 +3,12 @@
 import asyncio
 import time
 
+
 async def worker(delay, what):
     print(f"'{what}' started at {time.strftime('%X')}")
     await asyncio.sleep(delay)
     print(f"'{what}' done at {time.strftime('%X')}")
+
 
 async def main():
     # asyncio.create_task()
@@ -21,7 +23,7 @@ async def main():
     await task1
     await task2
 
+
 asyncio.run(main())
 
 # TODO (1): what happens if task 1 takes 2 minutes, and task 2 takes 1 minute?
-
