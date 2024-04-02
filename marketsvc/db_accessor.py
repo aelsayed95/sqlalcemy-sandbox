@@ -100,7 +100,6 @@ def insert_order_items(order_id, item_id, quantity):
                 (:order_id, :item_id, :quantity)
             """,
             {"order_id": order_id, "item_id": item_id, "quantity": quantity},
-            insert=True,
         )
 
         return True
