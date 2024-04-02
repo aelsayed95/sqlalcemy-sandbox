@@ -1,6 +1,6 @@
 import os
-
-import psycopg2
+import asyncpg
+import logging
 
 DB_USER = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
@@ -9,32 +9,40 @@ DB_NAME = os.environ.get("POSTGRES_DB")
 DB_HOST = "marketdb"
 
 
-def execute_query(query, params=None):
-    with psycopg2.connect(
+async def execute_query(query, *params):
+    conn = await asyncpg.connect(
         database=DB_HOST, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT
-    ) as conn:
-        cur = conn.cursor()
-        cur.execute(query, params)
-        rows = cur.fetchall()
-        return rows
+    )
+    async with conn.transaction():
+        rows = await conn.fetch(query, *params)
+        return [dict(row) for row in rows]
 
 
-def execute_insert_query(query, params):
-    with psycopg2.connect(
+async def stream_query(query, *params):
+    conn = await asyncpg.connect(
         database=DB_HOST, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT
-    ) as conn:
-        cur = conn.cursor()
-        cur.execute(query, params)
+    )
+    async with conn.transaction():
+        async for row in conn.cursor(query, *params):
+            yield dict(row)
+
+
+async def execute_insert_query(query, params):
+    conn = await asyncpg.connect(
+        database=DB_HOST, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT
+    )
+    async with conn.transaction():
+        conn.cursor(query, params)
         conn.commit()
 
 
 def get_customers():
-    rows = execute_query("SELECT * FROM customer")
+    rows = stream_query("SELECT * FROM customer")
     return rows
 
 
-def get_orders_of_customer(customer_id):
-    rows = execute_query(
+async def get_orders_of_customer(customer_id):
+    rows = await execute_query(
         """
         SELECT 
             item.name, 
@@ -49,15 +57,15 @@ def get_orders_of_customer(customer_id):
         ON 
             item.id = order_items.item_id
         WHERE
-            orders.customer_id=%(customer_id)s
+            orders.customer_id=$1
         """,
-        {"customer_id": customer_id},
+        customer_id,
     )
     return rows
 
 
-def get_total_cost_of_an_order(order_id):
-    rows = execute_query(
+async def get_total_cost_of_an_order(order_id):
+    rows = await execute_query(
         """
         SELECT 
             SUM(item.price*order_items.quantity)
@@ -69,19 +77,15 @@ def get_total_cost_of_an_order(order_id):
         ON 
             item.id = order_items.item_id
         WHERE
-            orders.id=%(order_id)s
+            orders.id=$1
         """,
-        {"order_id": order_id},
+        order_id,
     )
-
-    for row in rows:
-        print(row)
-
-    return {"Order Total": rows[0][0]}
+    return rows[0]["sum"]
 
 
 def get_orders_between_dates(after, before):
-    rows = execute_query(
+    rows = stream_query(
         """
         SELECT
             customer.name,
@@ -99,28 +103,30 @@ def get_orders_between_dates(after, before):
         ON 
             item.id = order_items.item_id
         WHERE
-            orders.order_time >= %(after)s
+            orders.order_time >= $1
         AND
-            orders.order_time <= %(before)s
+            orders.order_time <= $2
         """,
-        {"after": after, "before": before},
+        after,
+        before,
     )
-    for row in rows:
-        print(row)
     return rows
 
 
-def insert_order_items(order_id, item_id, quantity):
+async def insert_order_items(order_id, item_id, quantity):
     try:
-        execute_insert_query(
+        await execute_insert_query(
             """
             INSERT INTO order_items
             VALUES
-                (%(order_id)s, %(item_id)s, %(quantity)s)
+                ($1, $2, $3)
             """,
-            {"order_id": order_id, "item_id": item_id, "quantity": quantity},
+            order_id,
+            item_id,
+            quantity,
         )
         return True
 
     except Exception:
+        logging.exception("Failed to update order")
         return False
