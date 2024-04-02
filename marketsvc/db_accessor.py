@@ -47,7 +47,7 @@ def get_total_cost_of_an_order(order_id):
     rows = execute_query(
         """
         SELECT 
-            SUM(item.price*order_items.quantity) AS total
+            SUM(item.price*order_items.quantity) AS order_total
         FROM orders 
         JOIN order_items 
         ON 
