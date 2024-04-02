@@ -1,5 +1,6 @@
 import os
-from sqlalchemy import create_engine, URL
+
+from sqlalchemy import URL, create_engine
 
 DB_USER = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
@@ -13,7 +14,7 @@ url_object = URL.create(
     password=DB_PASSWORD,
     host=DB_HOST,
     database=DB_NAME,
-    port=DB_PORT
+    port=DB_PORT,
 )
 
 engine = create_engine(url_object, echo=True)

@@ -1,5 +1,6 @@
-from sqlalchemy import text
 from db.base import engine
+from sqlalchemy import text
+
 
 def execute_query(query, params=None, insert=False):
     with engine.connect() as conn:
@@ -14,14 +15,12 @@ def execute_query(query, params=None, insert=False):
 
 def get_customers():
     rows = execute_query("SELECT * FROM customer")
-    for row in rows:
-        print(row)
     return rows
 
 
 def get_orders_of_customer(customer_id):
     rows = execute_query(
-        f"""
+        """
         SELECT 
             item.name, 
             item.description, 
@@ -39,14 +38,12 @@ def get_orders_of_customer(customer_id):
         """,
         {"customer_id": customer_id},
     )
-    for row in rows:
-        print(row)
     return rows
 
 
 def get_total_cost_of_an_order(order_id):
     rows = execute_query(
-        f"""
+        """
         SELECT 
             SUM(item.price*order_items.quantity) AS total
         FROM orders 
@@ -61,16 +58,12 @@ def get_total_cost_of_an_order(order_id):
         """,
         {"order_id": order_id},
     )
-
-    for row in rows:
-        print(row)
-
     return rows[0]
 
 
 def get_orders_between_dates(after, before):
     rows = execute_query(
-        f"""
+        """
         SELECT
             customer.name,
             item.name, 
@@ -93,15 +86,13 @@ def get_orders_between_dates(after, before):
         """,
         {"after": after, "before": before},
     )
-    for row in rows:
-        print(row)
     return rows
 
 
 def insert_order_items(order_id, item_id, quantity):
     try:
         execute_query(
-            f"""
+            """
             INSERT INTO order_items
             VALUES
                 (:order_id, :item_id, :quantity)
@@ -112,5 +103,5 @@ def insert_order_items(order_id, item_id, quantity):
 
         return "200 OK"
 
-    except:
+    except Exception:
         return "500 Error"
