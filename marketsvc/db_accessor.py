@@ -73,7 +73,9 @@ async def add_new_order_for_customer(customer_id, items):
     try:
         async_session = async_session_maker()
         async with async_session() as session:
-            result = await session.execute(select(Customer).where(customer_id == customer_id))
+            result = await session.execute(
+                select(Customer).where(customer_id == customer_id)
+            )
             customer = result.scalar()
 
             new_order = Orders(
