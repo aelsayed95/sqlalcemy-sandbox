@@ -1,13 +1,13 @@
 import os
-from flask import Flask, jsonify, request
 
 from db_accessor import (
     get_customers,
+    get_orders_between_dates,
     get_orders_of_customer,
     get_total_cost_of_an_order,
-    get_orders_between_dates,
     insert_order_items,
 )
+from flask import Flask, Response, jsonify, request
 
 app = Flask(__name__)
 
@@ -46,7 +46,11 @@ def add_order_items():
     order_id = request.json.get("order_id")
     item_id = request.json.get("item_id")
     quantity = request.json.get("quantity")
-    return jsonify(insert_order_items(order_id, item_id, quantity))
+
+    if insert_order_items(order_id, item_id, quantity):
+        return Response(status=200)
+    else:
+        return Response(status=500)
 
 
 if __name__ == "__main__":
