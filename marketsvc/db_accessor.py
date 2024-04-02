@@ -2,15 +2,17 @@ from db.base import engine
 from sqlalchemy import text
 
 
-def execute_query(query, params=None, insert=False):
+def execute_query(query, params=None):
     with engine.connect() as conn:
         result = conn.execute(text(query), params)
 
-        if insert:
-            conn.commit()
-            return
-
         return [row._asdict() for row in result]
+
+
+def execute_insert_query(query, params=None):
+    with engine.connect() as conn:
+        conn.execute(text(query), params)
+        conn.commit()
 
 
 def get_customers():
@@ -91,7 +93,7 @@ def get_orders_between_dates(after, before):
 
 def insert_order_items(order_id, item_id, quantity):
     try:
-        execute_query(
+        execute_insert_query(
             """
             INSERT INTO order_items
             VALUES
@@ -101,7 +103,7 @@ def insert_order_items(order_id, item_id, quantity):
             insert=True,
         )
 
-        return "200 OK"
+        return True
 
     except Exception:
-        return "500 Error"
+        return False
