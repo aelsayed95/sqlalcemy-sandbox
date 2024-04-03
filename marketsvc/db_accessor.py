@@ -11,8 +11,9 @@ def execute_query(query, params=None):
 
 def execute_insert_query(query, params=None):
     with engine.connect() as conn:
-        conn.execute(text(query), params)
+        result = conn.execute(text(query), params)
         conn.commit()
+        return [row._asdict() for row in result]
 
 
 def get_customers():
@@ -91,15 +92,36 @@ def get_orders_between_dates(after, before):
     return rows
 
 
-def insert_order_items(order_id, item_id, quantity):
+def add_new_order_for_customer(customer_id, items):
     try:
-        execute_insert_query(
+        new_order_id = execute_insert_query(
             """
+            INSERT INTO orders
+                (customer_id, order_time)
+            VALUES
+                (:customer_id, NOW())
+            RETURNING id
+            """,
+            {"customer_id": customer_id},
+        )[0]["id"]
+
+        (
+            execute_insert_query(
+                """
             INSERT INTO order_items
+                (order_id, item_id, quantity)
             VALUES
                 (:order_id, :item_id, :quantity)
             """,
-            {"order_id": order_id, "item_id": item_id, "quantity": quantity},
+                [
+                    {
+                        "order_id": new_order_id,
+                        "item_id": item["id"],
+                        "quantity": item["quantity"],
+                    }
+                    for item in items
+                ],
+            )
         )
 
         return True
