@@ -13,6 +13,7 @@ def execute_insert_query(query, params=None):
     with engine.connect() as conn:
         result = conn.execute(text(query), params)
         conn.commit()
+
         return [row._asdict() for row in result]
 
 
