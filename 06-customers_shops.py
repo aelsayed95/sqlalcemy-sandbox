@@ -70,8 +70,12 @@ async def main():
     # https://docs.python.org/3/library/asyncio-queue.html
     q = asyncio.Queue()
 
-    customers = [asyncio.create_task(place_order(n, q)) for n in range(MAX_TASKS)]
-    shops = [asyncio.create_task(process_orders(n, q)) for n in range(MAX_TASKS)]
+    customers = [
+        asyncio.create_task(place_order(n, q)) for n in range(MAX_TASKS)
+    ]
+    shops = [
+        asyncio.create_task(process_orders(n, q)) for n in range(MAX_TASKS)
+    ]
 
     await asyncio.gather(*customers)
     await q.join()  # awaits shops too
