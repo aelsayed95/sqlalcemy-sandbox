@@ -24,8 +24,6 @@ async def stream_query(query, params=None, insert=False):
 async def execute_insert_query(query, params):
     async with create_engine().begin() as conn:
         await conn.execute(text(query), params)
-        await conn.commit()
-    return []
 
 
 def get_customers():
