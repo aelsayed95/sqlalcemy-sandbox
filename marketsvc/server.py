@@ -1,6 +1,7 @@
 import os
 
 from db_accessor import (
+    add_new_order_for_customer,
     get_customers,
     get_orders_between_dates,
     get_orders_of_customer,
@@ -48,6 +49,17 @@ def add_order_items():
     quantity = request.json.get("quantity")
 
     if insert_order_items(order_id, item_id, quantity):
+        return Response(status=200)
+    else:
+        return Response(status=500)
+
+
+@app.route("/api/add_new_order", methods=["POST"])
+def add_new_order():
+    customer_id = request.json.get("customer_id")
+    items = request.json.get("items")
+
+    if add_new_order_for_customer(customer_id, items):
         return Response(status=200)
     else:
         return Response(status=500)

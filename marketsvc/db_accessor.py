@@ -1,6 +1,7 @@
 import os
 
 import psycopg2
+from psycopg2.extras import execute_values
 
 DB_USER = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
@@ -23,7 +24,7 @@ def execute_query(query, params=None):
         return rows
 
 
-def execute_insert_query(query, params):
+def execute_insert_query(query, params=None):
     with psycopg2.connect(
         database=DB_HOST,
         user=DB_USER,
@@ -33,6 +34,20 @@ def execute_insert_query(query, params):
     ) as conn:
         cur = conn.cursor()
         cur.execute(query, params)
+        conn.commit()
+        return cur.fetchone()[0]
+
+
+def execute_multiple_insert_queries(query, params_arr=None):
+    with psycopg2.connect(
+        database=DB_HOST,
+        user=DB_USER,
+        host=DB_HOST,
+        password=DB_PASSWORD,
+        port=DB_PORT,
+    ) as conn:
+        cur = conn.cursor()
+        execute_values(cur, query, params_arr)
         conn.commit()
 
 
@@ -81,10 +96,6 @@ def get_total_cost_of_an_order(order_id):
         """,
         {"order_id": order_id},
     )
-
-    for row in rows:
-        print(row)
-
     return {"Order Total": rows[0][0]}
 
 
@@ -113,8 +124,6 @@ def get_orders_between_dates(after, before):
         """,
         {"after": after, "before": before},
     )
-    for row in rows:
-        print(row)
     return rows
 
 
@@ -128,6 +137,39 @@ def insert_order_items(order_id, item_id, quantity):
             """,
             {"order_id": order_id, "item_id": item_id, "quantity": quantity},
         )
+        return True
+
+    except Exception:
+        return False
+
+
+def add_new_order_for_customer(customer_id, items):
+    try:
+        new_order_id = execute_insert_query(
+            """
+            INSERT INTO orders
+            (customer_id, order_time)
+            VALUES
+                (%(customer_id)s, NOW())
+            RETURNING id
+            """,
+            {"customer_id": customer_id},
+        )
+
+        (
+            execute_multiple_insert_queries(
+                """
+            INSERT INTO order_items
+            (order_id, item_id, quantity)
+            VALUES %s
+            """,
+                [
+                    (new_order_id, item["id"], item["quantity"])
+                    for item in items
+                ],
+            )
+        )
+
         return True
 
     except Exception:
