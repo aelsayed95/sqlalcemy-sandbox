@@ -16,7 +16,7 @@ def get_customers():
         result = session.execute(stmt)
         customers = result.scalars().all()
 
-    return [customer.as_dict() for customer in customers]
+        return [customer.as_dict() for customer in customers]
 
 
 def get_orders_of_customer(customer_id):
@@ -26,7 +26,7 @@ def get_orders_of_customer(customer_id):
         )
         orders = result.scalars().unique().all()
 
-    return [order.as_dict() for order in orders]
+        return [order.as_dict() for order in orders]
 
 
 def get_total_cost_of_an_order(order_id):
@@ -38,6 +38,7 @@ def get_total_cost_of_an_order(order_id):
             .where(Orders.id == order_id)
         )
         total_cost = result.scalar()
+
         return {"total_cost": total_cost}
 
 
@@ -48,21 +49,7 @@ def get_orders_between_dates(after, before):
         )
         orders = result.scalars().unique().all()
 
-    return [order.as_dict() for order in orders]
-
-
-def insert_order_items(order_id, item_id, quantity):
-    try:
-        with Session(engine) as session:
-            new_order_item = OrderItems(
-                order_id=order_id, item_id=item_id, quantity=quantity
-            )
-            session.add(new_order_item)
-            session.commit()
-
-        return True
-    except Exception:
-        return False
+        return [order.as_dict() for order in orders]
 
 
 def add_new_order_for_customer(customer_id, items):

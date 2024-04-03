@@ -1,14 +1,13 @@
 import os
 
 from db_accessor import (
+    add_new_order_for_customer,
     get_customers,
     get_orders_between_dates,
     get_orders_of_customer,
     get_total_cost_of_an_order,
-    insert_order_items,
-    add_new_order_for_customer,
 )
-from flask import Flask, jsonify, request, Response
+from flask import Flask, Response, jsonify, request
 
 app = Flask(__name__)
 
@@ -40,18 +39,6 @@ def orders_between_dates():
     after = request.args.get("after")
     before = request.args.get("before")
     return jsonify(get_orders_between_dates(after, before))
-
-
-@app.route("/api/add_order_items", methods=["POST"])
-def add_order_items():
-    order_id = request.json.get("order_id")
-    item_id = request.json.get("item_id")
-    quantity = request.json.get("quantity")
-
-    if insert_order_items(order_id, item_id, quantity):
-        return Response(status=200)
-    else:
-        return Response(status=500)
 
 
 @app.route("/api/add_new_order", methods=["POST"])
