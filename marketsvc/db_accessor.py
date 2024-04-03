@@ -11,7 +11,11 @@ DB_HOST = "marketdb"
 
 def execute_query(query, params=None):
     with psycopg2.connect(
-        database=DB_HOST, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT
+        database=DB_HOST,
+        user=DB_USER,
+        host=DB_HOST,
+        password=DB_PASSWORD,
+        port=DB_PORT,
     ) as conn:
         cur = conn.cursor()
         cur.execute(query, params)
@@ -21,7 +25,11 @@ def execute_query(query, params=None):
 
 def execute_insert_query(query, params):
     with psycopg2.connect(
-        database=DB_HOST, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT
+        database=DB_HOST,
+        user=DB_USER,
+        host=DB_HOST,
+        password=DB_PASSWORD,
+        port=DB_PORT,
     ) as conn:
         cur = conn.cursor()
         cur.execute(query, params)
