@@ -14,8 +14,7 @@ async def get_customers():
     async_session = async_session_maker()
     async with async_session() as session:
         stmt = select(Customer)
-        result = await session.stream(stmt)
-        async for customer in result.scalars():
+        async for customer in await session.stream_scalars(stmt):
             yield customer.as_dict()
 
 
@@ -39,8 +38,7 @@ async def get_total_cost_of_an_order(order_id):
             .join(OrderItems.item)
             .where(Orders.id == order_id)
         )
-        total_cost = result.scalar()
-        return {"total_cost": total_cost}
+        return result.scalar()
 
 
 async def get_orders_between_dates(after, before):

@@ -38,7 +38,7 @@ async def orders():
 async def order_total():
     order_id = int(request.args.get("order_id"))
     total = await get_total_cost_of_an_order(order_id)
-    return jsonify(total)
+    return jsonify({"Order total": total})
 
 
 @app.route("/api/orders_total")
