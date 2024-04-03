@@ -11,7 +11,11 @@ DB_HOST = "marketdb"
 
 async def execute_query(query, *params):
     conn = await asyncpg.connect(
-        database=DB_HOST, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT
+        database=DB_HOST,
+        user=DB_USER,
+        host=DB_HOST,
+        password=DB_PASSWORD,
+        port=DB_PORT,
     )
     async with conn.transaction():
         rows = await conn.fetch(query, *params)
@@ -20,7 +24,11 @@ async def execute_query(query, *params):
 
 async def stream_query(query, *params):
     conn = await asyncpg.connect(
-        database=DB_HOST, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT
+        database=DB_HOST,
+        user=DB_USER,
+        host=DB_HOST,
+        password=DB_PASSWORD,
+        port=DB_PORT,
     )
     async with conn.transaction():
         async for row in conn.cursor(query, *params):
@@ -29,7 +37,11 @@ async def stream_query(query, *params):
 
 async def execute_insert_query(query, params):
     conn = await asyncpg.connect(
-        database=DB_HOST, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT
+        database=DB_HOST,
+        user=DB_USER,
+        host=DB_HOST,
+        password=DB_PASSWORD,
+        port=DB_PORT,
     )
     async with conn.transaction():
         conn.cursor(query, params)
