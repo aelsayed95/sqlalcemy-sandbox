@@ -9,15 +9,17 @@ DB_PORT = os.environ.get("POSTGRES_PORT")
 DB_NAME = os.environ.get("POSTGRES_DB")
 DB_HOST = "marketdb"
 
+DB_CONFIG = {
+    "database": DB_HOST,
+    "user": DB_USER,
+    "host": DB_HOST,
+    "password": DB_PASSWORD,
+    "port": DB_PORT,
+}
+
 
 def execute_query(query, params=None):
-    with psycopg2.connect(
-        database=DB_HOST,
-        user=DB_USER,
-        host=DB_HOST,
-        password=DB_PASSWORD,
-        port=DB_PORT,
-    ) as conn:
+    with psycopg2.connect(**DB_CONFIG) as conn:
         cur = conn.cursor()
         cur.execute(query, params)
         rows = cur.fetchall()
@@ -25,13 +27,7 @@ def execute_query(query, params=None):
 
 
 def execute_insert_query(query, params=None):
-    with psycopg2.connect(
-        database=DB_HOST,
-        user=DB_USER,
-        host=DB_HOST,
-        password=DB_PASSWORD,
-        port=DB_PORT,
-    ) as conn:
+    with psycopg2.connect(**DB_CONFIG) as conn:
         cur = conn.cursor()
         cur.execute(query, params)
         conn.commit()
@@ -39,13 +35,7 @@ def execute_insert_query(query, params=None):
 
 
 def execute_multiple_insert_queries(query, params_arr=None):
-    with psycopg2.connect(
-        database=DB_HOST,
-        user=DB_USER,
-        host=DB_HOST,
-        password=DB_PASSWORD,
-        port=DB_PORT,
-    ) as conn:
+    with psycopg2.connect(**DB_CONFIG) as conn:
         cur = conn.cursor()
         execute_values(cur, query, params_arr)
         conn.commit()
@@ -125,22 +115,6 @@ def get_orders_between_dates(after, before):
         {"after": after, "before": before},
     )
     return rows
-
-
-def insert_order_items(order_id, item_id, quantity):
-    try:
-        execute_insert_query(
-            """
-            INSERT INTO order_items
-            VALUES
-                (%(order_id)s, %(item_id)s, %(quantity)s)
-            """,
-            {"order_id": order_id, "item_id": item_id, "quantity": quantity},
-        )
-        return True
-
-    except Exception:
-        return False
 
 
 def add_new_order_for_customer(customer_id, items):
