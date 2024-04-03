@@ -122,7 +122,7 @@ def add_new_order_for_customer(customer_id, items):
         new_order_id = execute_insert_query(
             """
             INSERT INTO orders
-            (customer_id, order_time)
+                (customer_id, order_time)
             VALUES
                 (%(customer_id)s, NOW())
             RETURNING id
@@ -134,7 +134,7 @@ def add_new_order_for_customer(customer_id, items):
             execute_multiple_insert_queries(
                 """
             INSERT INTO order_items
-            (order_id, item_id, quantity)
+                (order_id, item_id, quantity)
             VALUES %s
             """,
                 [
