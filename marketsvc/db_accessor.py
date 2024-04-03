@@ -123,7 +123,6 @@ def add_new_order_for_customer(customer_id, items):
                 ],
             )
         )
-
         return True
 
     except Exception:
