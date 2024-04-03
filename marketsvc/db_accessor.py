@@ -33,7 +33,9 @@ async def get_total_cost_of_an_order(order_id):
     async_session = async_session_maker()
     async with async_session() as session:
         result = await session.execute(
-            select(func.sum(Item.price * OrderItems.quantity).label("total_cost"))
+            select(
+                func.sum(Item.price * OrderItems.quantity).label("total_cost")
+            )
             .join(Orders.order_items)
             .join(OrderItems.item)
             .where(Orders.id == order_id)

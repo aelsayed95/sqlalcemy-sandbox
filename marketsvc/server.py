@@ -46,7 +46,8 @@ async def orders_total():
     orders = request.json.get("orders", [])
     async with asyncio.TaskGroup() as tg:
         order_tasks = [
-            tg.create_task(get_total_cost_of_an_order(order)) for order in orders
+            tg.create_task(get_total_cost_of_an_order(order))
+            for order in orders
         ]
     return jsonify([task.result() for task in order_tasks])
 
@@ -81,4 +82,8 @@ async def add_new_order():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=os.environ.get("FLASK_SERVER_PORT", 9090), debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=os.environ.get("FLASK_SERVER_PORT", 9090),
+        debug=True,
+    )
