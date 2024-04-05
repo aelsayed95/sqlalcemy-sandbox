@@ -14,7 +14,7 @@ def execute_insert_query(query, params=None):
         result = conn.execute(text(query), params)
         conn.commit()
 
-        return next(row._asdict() for row in result)["id"]
+        return [row._asdict() for row in result]
 
 
 def execute_insert_queries(query, params=None):
@@ -110,7 +110,7 @@ def add_new_order_for_customer(customer_id, items):
             RETURNING id
             """,
             {"customer_id": customer_id},
-        )
+        )[0]["id"]
 
         (
             execute_insert_queries(
