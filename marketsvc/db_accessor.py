@@ -14,7 +14,13 @@ def execute_insert_query(query, params=None):
         result = conn.execute(text(query), params)
         conn.commit()
 
-        return [row._asdict() for row in result]
+        return next(row._asdict() for row in result)["id"]
+
+
+def execute_insert_queries(query, params=None):
+    with engine.connect() as conn:
+        conn.execute(text(query), params)
+        conn.commit()
 
 
 def get_customers():
@@ -104,10 +110,10 @@ def add_new_order_for_customer(customer_id, items):
             RETURNING id
             """,
             {"customer_id": customer_id},
-        )[0]["id"]
+        )
 
         (
-            execute_insert_query(
+            execute_insert_queries(
                 """
             INSERT INTO order_items
                 (order_id, item_id, quantity)
