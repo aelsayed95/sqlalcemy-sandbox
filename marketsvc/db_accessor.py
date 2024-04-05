@@ -1,7 +1,6 @@
 import os
 
 import psycopg2
-from psycopg2.extras import execute_values
 
 DB_USER = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
@@ -34,10 +33,10 @@ def execute_insert_query(query, params=None):
         return cur.fetchone()[0]
 
 
-def execute_multiple_insert_queries(query, params_arr=None):
+def execute_multiple_insert_queries(query, params_tuple=None):
     with psycopg2.connect(**DB_CONFIG) as conn:
         cur = conn.cursor()
-        execute_values(cur, query, params_arr)
+        cur.executemany(query, params_tuple)
         conn.commit()
 
 
@@ -135,12 +134,12 @@ def add_new_order_for_customer(customer_id, items):
                 """
             INSERT INTO order_items
                 (order_id, item_id, quantity)
-            VALUES %s
+            VALUES (%s, %s, %s)
             """,
-                [
+                (
                     (new_order_id, item["id"], item["quantity"])
                     for item in items
-                ],
+                ),
             )
         )
 
