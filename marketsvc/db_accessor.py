@@ -17,9 +17,9 @@ def execute_insert_query(query, params=None):
         return [row._asdict() for row in result]
 
 
-def execute_insert_queries(query, params=None):
+def execute_insert_queries(query, params_list=None):
     with engine.connect() as conn:
-        conn.execute(text(query), params)
+        conn.execute(text(query), params_list)
         conn.commit()
 
 
