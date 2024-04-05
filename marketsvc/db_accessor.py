@@ -33,7 +33,7 @@ def execute_insert_query(query, params=None):
         return cur.fetchone()[0]
 
 
-def execute_multiple_insert_queries(query, params_tuple=None):
+def execute_insert_queries(query, params_tuple=None):
     with psycopg2.connect(**DB_CONFIG) as conn:
         cur = conn.cursor()
         cur.executemany(query, params_tuple)
@@ -130,7 +130,7 @@ def add_new_order_for_customer(customer_id, items):
         )
 
         (
-            execute_multiple_insert_queries(
+            execute_insert_queries(
                 """
             INSERT INTO order_items
                 (order_id, item_id, quantity)
