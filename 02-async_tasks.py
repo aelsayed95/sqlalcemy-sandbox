@@ -13,7 +13,7 @@ async def worker(delay, what):
 async def main():
     await worker(1, "order milk")
     await worker(2, "order bread")
-    # NOTE: since coro "worker(2, "order bread")" is not scheduled yet, L13 exectues after the first coro is done
+    # NOTE: since coro "worker(2, "order bread")" is not scheduled yet, L14 exectues after the first coro is done
 
     # TODO: comment out L12-L13 and uncomment L18
     # how does asyncio.gather() make our coroutines run concurrently?

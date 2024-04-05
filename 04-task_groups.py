@@ -14,11 +14,11 @@ async def main():
     # asyncio.TaskGroup() - new in Python3.11
     # https://docs.python.org/3/library/asyncio-task.html#asyncio.TaskGroup
     async with asyncio.TaskGroup() as tg:
-        tg.create_task(say_after(1, "hello"))
-
-        tg.create_task(say_after(2, "world"))
+        tg.create_task(say_after(1, "order milk"))
+        tg.create_task(say_after(2, "order bread"))
+        print("scheduling done")
 
     # The await is implicit when the context manager exits.
-
+    print("Done.")
 
 asyncio.run(main())

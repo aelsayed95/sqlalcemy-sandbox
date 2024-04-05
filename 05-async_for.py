@@ -22,9 +22,9 @@ async def main():
     async for order in dispatch_orders(5):
         print(f"order {order} dispatched.")
 
-    # TODO: uncomment this
-    #     deliver_task = asyncio.create_task(deliver_order(order))
-    #     deliveries.append(deliver_task)
+        # TODO: uncomment this
+        # deliver_task = asyncio.create_task(deliver_order(order))
+        # deliveries.append(deliver_task)
 
     # await asyncio.gather(*deliveries)
 
