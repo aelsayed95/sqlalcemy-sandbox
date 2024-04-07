@@ -85,7 +85,7 @@ def get_total_cost_of_an_order(order_id):
         """,
         {"order_id": order_id},
     )
-    return {"Order Total": rows[0][0]}
+    return rows
 
 
 def get_orders_between_dates(after, before):

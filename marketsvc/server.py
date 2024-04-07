@@ -31,7 +31,8 @@ def orders():
 @app.route("/api/order_total")
 def order_total():
     order_id = request.args.get("order_id")
-    return jsonify(get_total_cost_of_an_order(order_id))
+    response = {"Order Total": get_total_cost_of_an_order(order_id)[0][0]}
+    return jsonify(response)
 
 
 @app.route("/api/orders_between_dates")
