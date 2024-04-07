@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 from db.base import Base
 from db.item import Item
 from sqlalchemy import ForeignKey
