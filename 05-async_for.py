@@ -12,9 +12,10 @@ async def dispatch_orders(delay):
     print(f"Done dispatching at {time.strftime('%X')}")
 
 
-async def deliver_order(order):
-    await asyncio.sleep(1)
-    print(f"order {order} delivered {time.strftime('%X')}")
+# TODO: uncomment this
+# async def deliver_order(order):
+#     await asyncio.sleep(1)
+#     print(f"order {order} delivered {time.strftime('%X')}")
 
 
 async def main():
@@ -22,7 +23,7 @@ async def main():
     async for order in dispatch_orders(5):
         print(f"order {order} dispatched.")
 
-        # TODO: uncomment this
+        # TODO: uncomment this 
         # deliver_task = asyncio.create_task(deliver_order(order))
         # deliveries.append(deliver_task)
 
