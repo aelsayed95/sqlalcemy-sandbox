@@ -74,7 +74,7 @@ def add_new_order_for_customer(customer_id, items):
 
             session.add(new_order)
             session.commit()
-            
+
         return True
 
     except Exception:
