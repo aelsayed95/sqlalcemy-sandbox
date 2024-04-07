@@ -6,7 +6,7 @@ def execute_query(query, params=None):
     with engine.connect() as conn:
         result = conn.execute(text(query), params)
 
-        return [row._asdict() for row in result]
+        return result
 
 
 def execute_insert_query(query, params=None):
@@ -14,7 +14,7 @@ def execute_insert_query(query, params=None):
         result = conn.execute(text(query), params)
         conn.commit()
 
-        return [row._asdict() for row in result]
+        return next(row._asdict() for row in result)["id"]
 
 
 def execute_insert_queries(query, params_list=None):
@@ -68,7 +68,7 @@ def get_total_cost_of_an_order(order_id):
         """,
         {"order_id": order_id},
     )
-    return rows[0]
+    return rows
 
 
 def get_orders_between_dates(after, before):
@@ -110,7 +110,7 @@ def add_new_order_for_customer(customer_id, items):
             RETURNING id
             """,
             {"customer_id": customer_id},
-        )[0]["id"]
+        )
 
         (
             execute_insert_queries(

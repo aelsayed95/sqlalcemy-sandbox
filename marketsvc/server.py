@@ -19,26 +19,34 @@ def hello():
 
 @app.route("/api/customers")
 def customers():
-    return jsonify(get_customers())
+    result = get_customers()
+    response = [row._asdict() for row in result]
+    return jsonify(response)
 
 
 @app.route("/api/orders")
 def orders():
     cust_id = request.args.get("cust_id")
-    return jsonify(get_orders_of_customer(cust_id))
+    result = get_orders_of_customer(cust_id)
+    response = [row._asdict() for row in result]
+    return jsonify(response)
 
 
 @app.route("/api/order_total")
 def order_total():
     order_id = request.args.get("order_id")
-    return jsonify(get_total_cost_of_an_order(order_id))
+    result = get_total_cost_of_an_order(order_id)
+    response = next(row._asdict() for row in result)
+    return jsonify(response)
 
 
 @app.route("/api/orders_between_dates")
 def orders_between_dates():
     after = request.args.get("after")
     before = request.args.get("before")
-    return jsonify(get_orders_between_dates(after, before))
+    result = get_orders_between_dates(after, before)
+    response = [row._asdict() for row in result]
+    return jsonify(response)
 
 
 @app.route("/api/add_new_order", methods=["POST"])
