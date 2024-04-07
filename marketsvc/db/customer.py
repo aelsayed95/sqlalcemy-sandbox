@@ -18,7 +18,7 @@ class Customer(Base):
     )  # one to one
 
     def __repr__(self) -> str:
-        return f"Item(id={self.id!r}, name={self.name!r}, address_id={self.address_id!r}, address={self.address})"
+        return f"Customer(id={self.id!r}, name={self.name!r}, address_id={self.address_id!r}, address={self.address})"
 
     def as_dict(self):
         return {
