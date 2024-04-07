@@ -55,7 +55,7 @@ def get_orders_between_dates(after, before):
 def add_new_order_for_customer(customer_id, items):
     try:
         with Session(engine) as session:
-            result = session.execute(select(Customer).where(customer_id == customer_id))
+            result = session.execute(select(Customer).where(Customer.id == customer_id))
             customer = result.scalar()
 
             new_order = Orders(
