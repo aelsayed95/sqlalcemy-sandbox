@@ -64,20 +64,17 @@ def add_new_order_for_customer(customer_id, items):
                 customer=customer,
             )
 
-            session.add(new_order)
-            session.flush()
-
-            new_order_items = [
+            new_order.order_items = [
                 OrderItems(
-                    order_id=new_order.id,
                     item_id=item["id"],
                     quantity=item["quantity"],
                 )
                 for item in items
             ]
 
-            session.add_all(new_order_items)
+            session.add(new_order)
             session.commit()
+            
         return True
 
     except Exception:
