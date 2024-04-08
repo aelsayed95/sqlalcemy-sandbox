@@ -1,8 +1,8 @@
 import os
 
 from sqlalchemy import URL
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.orm import DeclarativeBase
 
 DB_USER = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
@@ -11,7 +11,7 @@ DB_NAME = os.environ.get("POSTGRES_DB")
 DB_HOST = "marketdb"
 
 url_object = URL.create(
-    "postgresql+psycopg2",
+    "postgresql+asyncpg",
     username=DB_USER,
     password=DB_PASSWORD,
     host=DB_HOST,
