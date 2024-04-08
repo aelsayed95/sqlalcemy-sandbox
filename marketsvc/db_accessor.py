@@ -15,7 +15,7 @@ async def get_customers():
     async with async_session() as session:
         stmt = select(Customer)
         async for customer in await session.stream_scalars(stmt):
-            yield customer.as_dict()
+            yield customer
 
 
 async def get_orders_of_customer(customer_id):
@@ -26,7 +26,7 @@ async def get_orders_of_customer(customer_id):
         )
         orders = result.scalars().unique().all()
 
-    return [order.as_dict() for order in orders]
+        return orders
 
 
 async def get_total_cost_of_an_order(order_id):
@@ -50,23 +50,7 @@ async def get_orders_between_dates(after, before):
             select(Orders).where(Orders.order_time.between(after, before))
         )
         async for order in result.scalars().unique():
-            yield order.as_dict()
-
-
-async def insert_order_items(order_id, item_id, quantity):
-    try:
-        async_session = async_session_maker()
-        async with async_session() as session:
-            new_order_item = OrderItems(
-                order_id=order_id, item_id=item_id, quantity=quantity
-            )
-            session.add(new_order_item)
-            await session.commit()
-
-        return True
-    except Exception:
-        logging.exception("Failed to add items to order")
-        return False
+            yield order
 
 
 async def add_new_order_for_customer(customer_id, items):
@@ -84,19 +68,15 @@ async def add_new_order_for_customer(customer_id, items):
                 customer=customer,
             )
 
-            session.add(new_order)
-            await session.flush()
-
-            new_order_items = [
+            new_order.order_items = [
                 OrderItems(
-                    order_id=new_order.id,
                     item_id=item["id"],
                     quantity=item["quantity"],
                 )
                 for item in items
             ]
 
-            session.add_all(new_order_items)
+            session.add(new_order)
             await session.commit()
         return True
 
