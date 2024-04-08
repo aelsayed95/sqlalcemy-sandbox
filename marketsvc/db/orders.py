@@ -17,7 +17,9 @@ class Orders(Base):
     order_time: Mapped[datetime]
 
     customer: Mapped["Customer"] = relationship(lazy="joined")  # many to one
-    order_items: Mapped[list["OrderItems"]] = relationship(lazy="joined")  # one to many
+    order_items: Mapped[list["OrderItems"]] = relationship(
+        lazy="joined"
+    )  # one to many
 
     def __repr__(self) -> str:
         return f"Orders(id={self.id!r}, customer_id={self.customer_id!r}, order_time={self.order_time!r}, customer={self.customer})"
@@ -32,7 +34,7 @@ class Orders(Base):
                     "name": order_item.item.name,
                     "price": order_item.item.price,
                     "quantity": order_item.quantity,
-                    "total": order_item.order_total,
+                    "total": order_item.item_total,
                 }
                 for order_item in self.order_items
             ],

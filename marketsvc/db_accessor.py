@@ -31,7 +31,7 @@ def get_orders_of_customer(customer_id):
 def get_total_cost_of_an_order(order_id):
     with Session(engine) as session:
         result = session.execute(
-            select(func.sum(OrderItems.order_total_expression))
+            select(func.sum(OrderItems.item_total_expression))
             .join(Orders.order_items)
             .join(OrderItems.item)
             .where(Orders.id == order_id)

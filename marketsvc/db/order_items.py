@@ -21,12 +21,12 @@ class OrderItems(Base):
     item: Mapped["Item"] = relationship(lazy="joined")  # many to one
 
     @hybrid_property
-    def order_total(self):
+    def item_total(self):
         return self.item.price * self.quantity
 
-    @order_total.inplace.expression
+    @item_total.inplace.expression
     @classmethod
-    def order_total_expression(cls):
+    def item_total_expression(cls):
         return Item.price * cls.quantity
 
     def __repr__(self) -> str:
