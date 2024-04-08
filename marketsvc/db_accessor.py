@@ -2,7 +2,6 @@ from datetime import datetime
 
 from db.base import engine
 from db.customer import Customer
-from db.item import Item
 from db.order_items import OrderItems
 from db.orders import Orders
 from sqlalchemy import select
@@ -32,7 +31,9 @@ def get_orders_of_customer(customer_id):
 def get_total_cost_of_an_order(order_id):
     with Session(engine) as session:
         result = session.execute(
-            select(func.sum(Item.price * OrderItems.quantity).label("total_cost"))
+            select(
+                func.sum(OrderItems.order_total_expression).label("total_cost")
+            )
             .join(Orders.order_items)
             .join(OrderItems.item)
             .where(Orders.id == order_id)
@@ -55,7 +56,9 @@ def get_orders_between_dates(after, before):
 def add_new_order_for_customer(customer_id, items):
     try:
         with Session(engine) as session:
-            result = session.execute(select(Customer).where(Customer.id == customer_id))
+            result = session.execute(
+                select(Customer).where(Customer.id == customer_id)
+            )
             customer = result.scalar()
 
             new_order = Orders(
