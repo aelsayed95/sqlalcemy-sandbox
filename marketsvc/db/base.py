@@ -1,7 +1,8 @@
 import os
 
-from sqlalchemy import URL, create_engine
+from sqlalchemy import URL
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import create_async_engine
 
 DB_USER = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
@@ -18,7 +19,7 @@ url_object = URL.create(
     port=DB_PORT,
 )
 
-engine = create_engine(url_object, echo=True)
+engine = create_async_engine(url_object, echo=True)
 
 
 class Base(DeclarativeBase):
