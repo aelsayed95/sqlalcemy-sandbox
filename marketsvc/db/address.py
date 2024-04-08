@@ -11,7 +11,7 @@ class Address(Base):
     flat_number: Mapped[int]
     post_code: Mapped[int]
 
-    customer: Mapped["Customer"] = relationship(  # noqa: F821
+    customer: Mapped["Customer"] = relationship(
         back_populates="address",
         lazy="joined",
     )  # one to one
