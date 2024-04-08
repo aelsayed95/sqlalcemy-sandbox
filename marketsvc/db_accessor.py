@@ -1,16 +1,16 @@
 from sqlalchemy import text
-from db.base import create_engine
-
 import logging
 
+from db.base import create_engine
 
-async def execute_query(query, params=None, insert=False):
+
+async def execute_query(query, params=None):
     async with create_engine().begin() as conn:
         result = await conn.execute(text(query), params)
-        return [row._asdict() for row in result]
+        return [row for row in result]
 
 
-async def stream_query(query, params=None, insert=False):
+async def stream_query(query, params=None):
     async with create_engine().begin() as conn:
         # https://docs.sqlalchemy.org/en/20/_modules/examples/asyncio/basic.html
         # for a streaming result that buffers only segments of the
@@ -18,12 +18,12 @@ async def stream_query(query, params=None, insert=False):
         # this returns a sqlalchemy.ext.asyncio.AsyncResult object.
         result = await conn.stream(text(query), params)
         async for row in result:
-            yield row._asdict()
+            yield row
 
 
 async def execute_insert_query(query, params):
     async with create_engine().begin() as conn:
-        await conn.execute(text(query), params)
+       return await conn.execute(text(query), params)
 
 
 def get_customers():
@@ -102,19 +102,39 @@ def get_orders_between_dates(after, before):
     return rows
 
 
-async def insert_order_items(order_id, item_id, quantity):
+async def add_new_order_for_customer(customer_id, items):
     try:
-        await execute_insert_query(
-            f"""
+        new_order_id = next(execute_insert_query(
+            """
+            INSERT INTO orders
+                (customer_id, order_time)
+            VALUES
+                (:customer_id, NOW())
+            RETURNING id
+            """,
+            {"customer_id": customer_id},
+        ))._asdict()["id"]
+
+        (
+            execute_insert_query(
+                """
             INSERT INTO order_items
+                (order_id, item_id, quantity)
             VALUES
                 (:order_id, :item_id, :quantity)
             """,
-            {"order_id": order_id, "item_id": item_id, "quantity": quantity},
+                [
+                    {
+                        "order_id": new_order_id,
+                        "item_id": item["id"],
+                        "quantity": item["quantity"],
+                    }
+                    for item in items
+                ],
+            )
         )
-
-        return "200 OK"
+        return True
 
     except Exception:
-        logging.exception("Failed to add order items")
-        return "500 Error"
+        logging.exception("Failed to add new order")
+        return False

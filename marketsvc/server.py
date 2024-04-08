@@ -1,42 +1,45 @@
 import os
 import asyncio
-from flask import Flask, jsonify, request
 
 from db_accessor import (
+    add_new_order_for_customer,
     get_customers,
+    get_orders_between_dates,
     get_orders_of_customer,
     get_total_cost_of_an_order,
-    get_orders_between_dates,
-    insert_order_items,
 )
+from flask import Flask, Response, jsonify, request
 from formatters import str_to_date
 
 app = Flask(__name__)
 
 
 @app.route("/")
-async def hello():
+def hello():
     return "<h1>Welcome to MarketPlace!</h1>"
 
 
 @app.route("/api/customers")
 async def customers():
     customers = get_customers()
-    return jsonify([c async for c in customers])
+    response = [customer._todict() async for customer in customers]
+    return jsonify(response)
 
 
 @app.route("/api/orders")
 async def orders():
     cust_id = int(request.args.get("cust_id"))
     orders = await get_orders_of_customer(cust_id)
-    return jsonify(orders)
+    response = [order._asdict() for order in orders]
+    return jsonify(response)
 
 
 @app.route("/api/order_total")
 async def order_total():
     order_id = int(request.args.get("order_id"))
-    total = await get_total_cost_of_an_order(order_id)
-    return jsonify(total)
+    total_cost = await get_total_cost_of_an_order(order_id)
+    response = {"total_cost": total_cost}
+    return jsonify(response)
 
 
 @app.route("/api/orders_total")
@@ -54,19 +57,18 @@ async def orders_total():
 async def orders_between_dates():
     after = str_to_date(request.args.get("after"))
     before = str_to_date(request.args.get("before"))
-
     orders = get_orders_between_dates(after, before)
+    response = [order._asdict() async for order in orders]
+    return jsonify(response)
 
-    return jsonify([order async for order in orders])
 
-
-@app.route("/api/add_order_items", methods=["POST"])
+@app.route("/api/add_new_order", methods=["POST"])
 async def add_order_items():
-    order_id = request.json.get("order_id")
-    item_id = request.json.get("item_id")
-    quantity = request.json.get("quantity")
-    item = await insert_order_items(order_id, item_id, quantity)
-    return jsonify(item)
+    customer_id = request.json.get("customer_id")
+    items = request.json.get("items")
+
+    success = await add_new_order_for_customer(customer_id, items)
+    return Response(status=200) if success else Response(status=500)
 
 
 if __name__ == "__main__":
