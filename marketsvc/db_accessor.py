@@ -11,16 +11,14 @@ from sqlalchemy.sql import func
 
 
 async def get_customers():
-    async_session = async_session_maker()
-    async with async_session() as session:
+    async with async_session_maker() as session:
         stmt = select(Customer)
         async for customer in await session.stream_scalars(stmt):
             yield customer
 
 
 async def get_orders_of_customer(customer_id):
-    async_session = async_session_maker()
-    async with async_session() as session:
+    async with async_session_maker() as session:
         result = await session.execute(
             select(Orders).where(Orders.customer_id == customer_id)
         )
@@ -30,8 +28,7 @@ async def get_orders_of_customer(customer_id):
 
 
 async def get_total_cost_of_an_order(order_id):
-    async_session = async_session_maker()
-    async with async_session() as session:
+    async with async_session_maker() as session:
         result = await session.execute(
             select(
                 func.sum(Item.price * OrderItems.quantity).label("total_cost")
@@ -44,8 +41,7 @@ async def get_total_cost_of_an_order(order_id):
 
 
 async def get_orders_between_dates(after, before):
-    async_session = async_session_maker()
-    async with async_session() as session:
+    async with async_session_maker() as session:
         result = await session.stream(
             select(Orders).where(Orders.order_time.between(after, before))
         )
@@ -55,8 +51,7 @@ async def get_orders_between_dates(after, before):
 
 async def add_new_order_for_customer(customer_id, items):
     try:
-        async_session = async_session_maker()
-        async with async_session() as session:
+        async with async_session_maker() as session:
             result = await session.execute(
                 select(Customer).where(customer_id == customer_id)
             )

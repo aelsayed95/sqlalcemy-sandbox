@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 
 @app.route("/")
-async def hello():
+def hello():
     return "<h1>Welcome to MarketPlace!</h1>"
 
 
