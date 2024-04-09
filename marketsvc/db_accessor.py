@@ -1,19 +1,14 @@
+import logging
 import os
 
 import psycopg2
 
-DB_USER = os.environ.get("POSTGRES_USER")
-DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
-DB_PORT = os.environ.get("POSTGRES_PORT")
-DB_NAME = os.environ.get("POSTGRES_DB")
-DB_HOST = "marketdb"
-
 DB_CONFIG = {
-    "database": DB_HOST,
-    "user": DB_USER,
-    "host": DB_HOST,
-    "password": DB_PASSWORD,
-    "port": DB_PORT,
+    "database": os.environ.get("POSTGRES_DB"),
+    "user": os.environ.get("POSTGRES_USER"),
+    "host": os.environ.get("POSTGRES_DB"),
+    "password": os.environ.get("POSTGRES_PASSWORD"),
+    "port": os.environ.get("POSTGRES_PORT"),
 }
 
 
@@ -30,7 +25,7 @@ def execute_insert_query(query, params=None):
         cur = conn.cursor()
         cur.execute(query, params)
         conn.commit()
-        return cur.fetchone()[0]
+        return cur.fetchone()
 
 
 def execute_insert_queries(query, params_tuple=None):
@@ -127,7 +122,7 @@ def add_new_order_for_customer(customer_id, items):
             RETURNING id
             """,
             {"customer_id": customer_id},
-        )
+        )[0]
 
         (
             execute_insert_queries(
@@ -146,4 +141,5 @@ def add_new_order_for_customer(customer_id, items):
         return True
 
     except Exception:
+        logging.exception("Failed to add new order")
         return False

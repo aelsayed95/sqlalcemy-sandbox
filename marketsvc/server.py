@@ -47,10 +47,8 @@ def add_new_order():
     customer_id = request.json.get("customer_id")
     items = request.json.get("items")
 
-    if add_new_order_for_customer(customer_id, items):
-        return Response(status=200)
-    else:
-        return Response(status=500)
+    success = add_new_order_for_customer(customer_id, items)
+    return Response(status=200) if success else Response(status=500)
 
 
 if __name__ == "__main__":
