@@ -20,6 +20,13 @@ async def stream_query(query, params=None):
             yield row
 
 
+async def execute_insert_query(query, params=None):
+    async with engine.begin() as conn:
+        result = await conn.execute(text(query), params)
+        await conn.commit()
+        return result
+
+
 def get_customers():
     rows = stream_query("SELECT * FROM customer")
     return rows
@@ -49,7 +56,7 @@ async def get_orders_of_customer(customer_id):
 
 
 async def get_total_cost_of_an_order(order_id):
-    rows = await execute_query(
+    result = await execute_insert_query(
         """
         SELECT 
             SUM(item.price*order_items.quantity) AS total
@@ -65,7 +72,7 @@ async def get_total_cost_of_an_order(order_id):
         """,
         {"order_id": order_id},
     )
-    return rows.one().total
+    return result.one().total
 
 
 def get_orders_between_dates(after, before):
@@ -111,7 +118,7 @@ async def add_new_order_for_customer(customer_id, items):
         new_order_id = result.one().id
 
         (
-            await execute_query(
+            await execute_insert_query(
                 """
             INSERT INTO order_items
                 (order_id, item_id, quantity)
