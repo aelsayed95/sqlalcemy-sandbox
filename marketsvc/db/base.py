@@ -1,5 +1,6 @@
 import os
-from sqlalchemy import create_engine, URL
+
+from sqlalchemy import URL, create_engine
 from sqlalchemy.ext.asyncio import create_async_engine
 
 DB_USER = os.environ.get("POSTGRES_USER")

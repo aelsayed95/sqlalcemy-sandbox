@@ -1,5 +1,5 @@
-import os
 import asyncio
+import os
 
 from db_accessor import (
     add_new_order_for_customer,
@@ -22,7 +22,7 @@ def hello():
 @app.route("/api/customers")
 async def customers():
     customers = get_customers()
-    response = [customer._todict() async for customer in customers]
+    response = [customer._asdict() async for customer in customers]
     return jsonify(response)
 
 
@@ -38,8 +38,7 @@ async def orders():
 async def order_total():
     order_id = int(request.args.get("order_id"))
     total_cost = await get_total_cost_of_an_order(order_id)
-    response = {"total_cost": total_cost}
-    return jsonify(response)
+    return jsonify({"total_cost": total_cost})
 
 
 @app.route("/api/orders_total")

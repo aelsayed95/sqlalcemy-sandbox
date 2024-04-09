@@ -1,13 +1,12 @@
-from sqlalchemy import text
 import logging
 
 from db.base import create_engine
+from sqlalchemy import text
 
 
 async def execute_query(query, params=None):
     async with create_engine().begin() as conn:
-        result = await conn.execute(text(query), params)
-        return [row for row in result]
+        return await conn.execute(text(query), params)
 
 
 async def stream_query(query, params=None):
@@ -21,11 +20,6 @@ async def stream_query(query, params=None):
             yield row
 
 
-async def execute_insert_query(query, params):
-    async with create_engine().begin() as conn:
-       return await conn.execute(text(query), params)
-
-
 def get_customers():
     rows = stream_query("SELECT * FROM customer")
     return rows
@@ -33,7 +27,7 @@ def get_customers():
 
 async def get_orders_of_customer(customer_id):
     rows = await execute_query(
-        f"""
+        """
         SELECT 
             item.name, 
             item.description, 
@@ -56,7 +50,7 @@ async def get_orders_of_customer(customer_id):
 
 async def get_total_cost_of_an_order(order_id):
     rows = await execute_query(
-        f"""
+        """
         SELECT 
             SUM(item.price*order_items.quantity) AS total
         FROM orders 
@@ -71,12 +65,12 @@ async def get_total_cost_of_an_order(order_id):
         """,
         {"order_id": order_id},
     )
-    return rows[0]
+    return rows.one().total
 
 
 def get_orders_between_dates(after, before):
     rows = stream_query(
-        f"""
+        """
         SELECT
             customer.name,
             item.name, 
@@ -104,7 +98,7 @@ def get_orders_between_dates(after, before):
 
 async def add_new_order_for_customer(customer_id, items):
     try:
-        new_order_id = next(execute_insert_query(
+        result = await execute_query(
             """
             INSERT INTO orders
                 (customer_id, order_time)
@@ -113,10 +107,11 @@ async def add_new_order_for_customer(customer_id, items):
             RETURNING id
             """,
             {"customer_id": customer_id},
-        ))._asdict()["id"]
+        )
+        new_order_id = result.one().id
 
         (
-            execute_insert_query(
+            await execute_query(
                 """
             INSERT INTO order_items
                 (order_id, item_id, quantity)
