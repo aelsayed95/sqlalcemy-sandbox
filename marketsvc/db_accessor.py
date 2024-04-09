@@ -14,7 +14,7 @@ def execute_insert_query(query, params=None):
         result = conn.execute(text(query), params)
         conn.commit()
 
-        return result.one()._asdict
+        return result.one()._asdict()
 
 
 def execute_insert_queries(query, params_list=None):
