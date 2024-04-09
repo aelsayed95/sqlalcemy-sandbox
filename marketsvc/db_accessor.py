@@ -14,7 +14,7 @@ def execute_insert_query(query, params=None):
         result = conn.execute(text(query), params)
         conn.commit()
 
-        return next(row._asdict() for row in result)["id"]
+        return result.scalar()
 
 
 def execute_insert_queries(query, params_list=None):
