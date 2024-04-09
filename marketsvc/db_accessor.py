@@ -1,5 +1,5 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 
 from db.base import async_session_maker
 from db.customer import Customer

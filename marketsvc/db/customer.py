@@ -13,7 +13,7 @@ class Customer(Base):
     name: Mapped[str]
     address_id: Mapped[int] = mapped_column(ForeignKey("address.id"))
 
-    address: Mapped["Address"] = relationship(
+    address: Mapped[Address] = relationship(
         back_populates="customer", lazy="joined"
     )  # one to one
 

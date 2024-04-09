@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 from db.base import Base
 from db.item import Item
 from sqlalchemy import ForeignKey
@@ -18,7 +17,7 @@ class OrderItems(Base):
     )
     quantity: Mapped[int]
 
-    item: Mapped["Item"] = relationship(lazy="joined")  # many to one
+    item: Mapped[Item] = relationship(lazy="joined")  # many to one
 
     def __repr__(self) -> str:
         return f"OrderItems(order_id={self.order_id!r}, item_id={self.item_id!r}, quantity={self.quantity!r}, item={self.item})"

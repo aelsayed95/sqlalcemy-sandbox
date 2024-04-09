@@ -16,8 +16,8 @@ class Orders(Base):
     customer_id: Mapped[int] = mapped_column(ForeignKey("customer.id"))
     order_time: Mapped[datetime]
 
-    customer: Mapped["Customer"] = relationship(lazy="joined")  # many to one
-    order_items: Mapped[list["OrderItems"]] = relationship(
+    customer: Mapped[Customer] = relationship(lazy="joined")  # many to one
+    order_items: Mapped[list[OrderItems]] = relationship(
         lazy="joined"
     )  # one to many
 

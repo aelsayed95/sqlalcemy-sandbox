@@ -1,9 +1,13 @@
 import os
 
 from sqlalchemy import URL
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncAttrs
-from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncAttrs,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 
 DB_USER = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
@@ -20,7 +24,7 @@ url_object = URL.create(
     port=DB_PORT,
 )
 
-engine = create_async_engine(url_object, echo=True)
+engine = create_async_engine(url_object, poolclass=NullPool, echo=True)
 
 def async_session_maker():
     # https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html#using-asyncsession-with-concurrent-tasks
