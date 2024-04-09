@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from db.address import Address
 from db.base import Base
 from sqlalchemy import ForeignKey
