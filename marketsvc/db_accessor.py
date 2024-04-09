@@ -1,26 +1,19 @@
+import logging
+
 from db.base import engine
 from sqlalchemy import text
 
 
 def execute_query(query, params=None):
     with engine.connect() as conn:
-        result = conn.execute(text(query), params)
-
-        return result
+        return conn.execute(text(query), params)
 
 
 def execute_insert_query(query, params=None):
     with engine.connect() as conn:
         result = conn.execute(text(query), params)
         conn.commit()
-
-        return result.one()._asdict()
-
-
-def execute_insert_queries(query, params_list=None):
-    with engine.connect() as conn:
-        conn.execute(text(query), params_list)
-        conn.commit()
+        return result
 
 
 def get_customers():
@@ -55,7 +48,7 @@ def get_total_cost_of_an_order(order_id):
     rows = execute_query(
         """
         SELECT 
-            SUM(item.price*order_items.quantity) AS order_total
+            SUM(item.price*order_items.quantity) AS total
         FROM orders 
         JOIN order_items 
         ON 
@@ -68,7 +61,7 @@ def get_total_cost_of_an_order(order_id):
         """,
         {"order_id": order_id},
     )
-    return rows
+    return rows.one().total
 
 
 def get_orders_between_dates(after, before):
@@ -101,7 +94,7 @@ def get_orders_between_dates(after, before):
 
 def add_new_order_for_customer(customer_id, items):
     try:
-        new_order_id = execute_insert_query(
+        result = execute_insert_query(
             """
             INSERT INTO orders
                 (customer_id, order_time)
@@ -110,10 +103,11 @@ def add_new_order_for_customer(customer_id, items):
             RETURNING id
             """,
             {"customer_id": customer_id},
-        )["id"]
+        )
+        new_order_id = result.one().id
 
         (
-            execute_insert_queries(
+            execute_insert_query(
                 """
             INSERT INTO order_items
                 (order_id, item_id, quantity)
@@ -133,4 +127,5 @@ def add_new_order_for_customer(customer_id, items):
         return True
 
     except Exception:
+        logging.exception("Failed to add new order")
         return False

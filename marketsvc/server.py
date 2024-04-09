@@ -19,33 +19,32 @@ def hello():
 
 @app.route("/api/customers")
 def customers():
-    result = get_customers()
-    response = [row._asdict() for row in result]
+    customers = get_customers()
+    response = [customer._asdict() for customer in customers]
     return jsonify(response)
 
 
 @app.route("/api/orders")
 def orders():
     cust_id = request.args.get("cust_id")
-    result = get_orders_of_customer(cust_id)
-    response = [row._asdict() for row in result]
+    orders = get_orders_of_customer(cust_id)
+    response = [order._asdict() for order in orders]
     return jsonify(response)
 
 
 @app.route("/api/order_total")
 def order_total():
     order_id = request.args.get("order_id")
-    result = get_total_cost_of_an_order(order_id)
-    response = next(row._asdict() for row in result)
-    return jsonify(response)
+    total_cost = get_total_cost_of_an_order(order_id)
+    return jsonify({"total_cost": total_cost})
 
 
 @app.route("/api/orders_between_dates")
 def orders_between_dates():
     after = request.args.get("after")
     before = request.args.get("before")
-    result = get_orders_between_dates(after, before)
-    response = [row._asdict() for row in result]
+    orders = get_orders_between_dates(after, before)
+    response = [order._asdict() for order in orders]
     return jsonify(response)
 
 
@@ -54,10 +53,8 @@ def add_new_order():
     customer_id = request.json.get("customer_id")
     items = request.json.get("items")
 
-    if add_new_order_for_customer(customer_id, items):
-        return Response(status=200)
-    else:
-        return Response(status=500)
+    success = add_new_order_for_customer(customer_id, items)
+    return Response(status=200) if success else Response(status=500)
 
 
 if __name__ == "__main__":
