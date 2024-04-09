@@ -1,51 +1,35 @@
-import os
-import asyncpg
 import logging
+import os
 
-DB_USER = os.environ.get("POSTGRES_USER")
-DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
-DB_PORT = os.environ.get("POSTGRES_PORT")
-DB_NAME = os.environ.get("POSTGRES_DB")
-DB_HOST = "marketdb"
+import asyncpg
+
+DB_CONFIG = {
+    "database": os.environ.get("POSTGRES_DB"),
+    "user": os.environ.get("POSTGRES_USER"),
+    "host": os.environ.get("POSTGRES_DB"),
+    "password": os.environ.get("POSTGRES_PASSWORD"),
+    "port": os.environ.get("POSTGRES_PORT"),
+}
 
 
 async def execute_query(query, *params):
-    conn = await asyncpg.connect(
-        database=DB_HOST,
-        user=DB_USER,
-        host=DB_HOST,
-        password=DB_PASSWORD,
-        port=DB_PORT,
-    )
+    conn = await asyncpg.connect(**DB_CONFIG)
     async with conn.transaction():
-        rows = await conn.fetch(query, *params)
-        return [dict(row) for row in rows]
+        return await conn.fetch(query, *params)
 
 
 async def stream_query(query, *params):
-    conn = await asyncpg.connect(
-        database=DB_HOST,
-        user=DB_USER,
-        host=DB_HOST,
-        password=DB_PASSWORD,
-        port=DB_PORT,
-    )
+    conn = await asyncpg.connect(**DB_CONFIG)
     async with conn.transaction():
         async for row in conn.cursor(query, *params):
-            yield dict(row)
+            yield row
 
 
 async def execute_insert_query(query, params):
-    conn = await asyncpg.connect(
-        database=DB_HOST,
-        user=DB_USER,
-        host=DB_HOST,
-        password=DB_PASSWORD,
-        port=DB_PORT,
-    )
+    conn = await asyncpg.connect(**DB_CONFIG)
     async with conn.transaction():
-        conn.cursor(query, params)
-        conn.commit()
+        result = conn.cursor(query, params)
+        return result
 
 
 def get_customers():
@@ -93,7 +77,7 @@ async def get_total_cost_of_an_order(order_id):
         """,
         order_id,
     )
-    return rows[0]["sum"]
+    return rows[0].get("sum")
 
 
 def get_orders_between_dates(after, before):
@@ -125,17 +109,31 @@ def get_orders_between_dates(after, before):
     return rows
 
 
-async def insert_order_items(order_id, item_id, quantity):
+async def add_new_order_for_customer(customer_id, items):
     try:
-        await execute_insert_query(
+        new_order_id = await execute_insert_query(
             """
-            INSERT INTO order_items
+            INSERT INTO orders
+                (customer_id, order_time)
             VALUES
-                ($1, $2, $3)
+                ($1, NOW())
+            RETURNING id
             """,
-            order_id,
-            item_id,
-            quantity,
+            customer_id,
+        )
+
+        (
+            await execute_insert_query(
+                """
+            INSERT INTO order_items
+                (order_id, item_id, quantity)
+            VALUES ($1, $2, $3)
+            """,
+                (
+                    (new_order_id, item["id"], item["quantity"])
+                    for item in items
+                ),
+            )
         )
         return True
 
