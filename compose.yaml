@@ -24,7 +24,7 @@ services:
     ports:
     - 9090:9090
     command:
-      - python
+      - python3.12
       - server.py
     depends_on:
       marketdb:
