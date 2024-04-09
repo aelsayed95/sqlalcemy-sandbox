@@ -1,16 +1,16 @@
 import logging
 
-from db.base import create_engine
+from db.base import engine
 from sqlalchemy import text
 
 
 async def execute_query(query, params=None):
-    async with create_engine().begin() as conn:
+    async with engine.begin() as conn:
         return await conn.execute(text(query), params)
 
 
 async def stream_query(query, params=None):
-    async with create_engine().begin() as conn:
+    async with engine.begin() as conn:
         # https://docs.sqlalchemy.org/en/20/_modules/examples/asyncio/basic.html
         # for a streaming result that buffers only segments of the
         # result at time, the AsyncConnection.stream() method is used.

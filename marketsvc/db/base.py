@@ -1,7 +1,8 @@
 import os
 
-from sqlalchemy import URL, create_engine
+from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.pool import NullPool
 
 DB_USER = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
@@ -19,5 +20,4 @@ url_object = URL.create(
 )
 
 
-def create_engine():
-    return create_async_engine(url_object, echo=True)
+engine = create_async_engine(url_object, poolclass=NullPool, echo=True)
